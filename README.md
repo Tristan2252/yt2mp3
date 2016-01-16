@@ -12,7 +12,7 @@ Installing yt2mp3 is very easy, simply run the `install.sh` within the repo.
 - eyeD3
 - python2.7
 - youtube-dl
-- ffmpeg
+- ffmpeg  
 ##### Linux Installation Dependencies
 - eyeD3
 - python2.7  _if not installed_
