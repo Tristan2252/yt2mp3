@@ -6,7 +6,7 @@ mp3's with ease. The program consists of a shell script witch prompts the user f
 the commands needed to achieve proper video download and mp3 conversion.
 
 ###Installing
-Installing yt2mp3 is very easy, simply run the `install.sh` within the repo.  
+Installing yt2mp3 is very easy, simply run `./install.sh` within the cloned repo folder.  
 After installing, yt2mp3 can be accesed anywhere from the terminal, installation files
 are no longer needed unless you want to run yt2mp3 as a stand alone program.
 #####Mac OS X Installation Dependencies
