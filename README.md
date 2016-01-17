@@ -1,4 +1,4 @@
-## Yt2mp3
+##Yt2mp3
 
 ### About  
 yt2mp3 is a wrapper for youtube-dl and ffmpeg that allows users to download and convert youtube videos to
