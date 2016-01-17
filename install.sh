@@ -95,13 +95,15 @@ darwin_install (){
 	printf "python2.7 installed\n"
 	
 	yt2mp3_install
+	printf "\nInstallation files no loager needed be sure to remove\n"
+	printf "them after installation is done\n"
 }
 
 
 # check what os is running
 if [ $(uname -s) == "Darwin" ]; then
 	darwin_install
-	printf "\n\nInstall Finished!"
+	printf "\n\nInstall Finished!\n"
 elif [ $(uname -s) == "Linux" ]; then
 	echo
 fi

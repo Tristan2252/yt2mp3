@@ -1,5 +1,6 @@
 #!/bin/bash
 
+music=$HOME/Music
 tmp_file=/tmp/ytdl
 dl_quality="22"
 log=0 # amout of output for ffmpeg, check man page for more info
@@ -91,6 +92,22 @@ done
 			
 python2.7 alb_add.py "$title.mp3" "$art_path" # add album art with python
 
+printf "\nYour song $title is located at $(pwd)\n"
+while [ 1 ]; do
+	echo -n "Would you like to move it to $music [Y/N]: "
+	read opt
+	if [ $opt == "Y" ]; then
+			mv "$title.mp3" "$music"
+			printf "$title moved to $music\n"
+			break
+	elif [ $opt == "N" ]; then
+			break
+	else
+			printf "Enter Y or N as an option\n"
+	fi
+done
+
+echo
 # cleaning up
 rm -r "$tmp_file"
 if [ -e output.jpg ]; then rm output.jpg; fi  # album art file made by alb_add.py
