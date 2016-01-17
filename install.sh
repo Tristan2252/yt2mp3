@@ -2,7 +2,7 @@
 
 INSTALL_DIR="/usr/local/bin"
 
-
+HOMEBREW="/usr/local/bin/brew"
 EYED3="/usr/local/lib/python2.7/site-packages/eyed3"
 FFMPEG="/usr/local/bin/ffmpeg"
 PYTHON="/usr/bin/python2.7"
