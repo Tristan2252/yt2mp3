@@ -5,20 +5,22 @@ yt2mp3 is a wrapper for youtube-dl and ffmpeg that allows users to download and 
 mp3's with ease. The program consists of a shell script witch prompts the user for needed input and executes 
 the commands needed to achieve proper video download and mp3 conversion.
 
+###Features
+
 ###Installing
-Installing yt2mp3 is very easy, simply run `./install.sh` within the cloned repo folder.  
-After installing, yt2mp3 can be accesed anywhere from the terminal, installation files
+Installing yt2mp3 is very easy, simply run `./install.sh` within the cloned folder.  
+After installing, yt2mp3 can be accessed anywhere from the terminal, installation files
 are no longer needed unless you want to run yt2mp3 as a stand alone program.
 #####Mac OS X Installation Dependencies
-- Homebrew _needed to install other dependencies_
-- eyeD3
+- Homebrew _(needed to install other dependencies)_
+- eyeD3  _(installed from pip)_
 - python2.7
 - youtube-dl
 - ffmpeg  
 
 #####Linux Installation Dependencies
-- eyeD3
-- python2.7  _if not installed_
+- eyeD3  _(installed from pip)_ 
+- python2.7  _(if not installed)_
 - youtube-dl
 - ffmpeg
 
