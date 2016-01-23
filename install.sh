@@ -2,22 +2,34 @@
 
 INSTALL_DIR="/usr/local/bin"
 
-HOMEBREW="/usr/local/bin/brew"
-EYED3="/usr/local/lib/python2.7/site-packages/eyed3"
-FFMPEG="/usr/local/bin/ffmpeg"
-PYTHON="/usr/bin/python2.7"
+HOMEBREW_MOS="/usr/local/bin/brew"
+EYED3_MOS="/usr/local/lib/python2.7/site-packages/eyed3"
+PYTHON_MOS="/usr/local/lib/python2.7"
+FFMPEG_MOS="/usr/local/bin/ffmpeg"
+YOUTUBE_MOS="/usr/local/bin/youtube-dl"
+
+YOUTUBE_LIN="/usr/bin/youtube-dl"
+EYED3_LIN="/usr/local/lib/python3.4/dist-packages/eyed3"
+FFMPEG_LIN="/usr/bin/ffmpeg"
+PYTHON_LIN="/usr/bin/python3.4"
 
 yt2mp3_install ()
 {
-	cp yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
-
-	# if system has other python versions and user wants it installed there,
-	# then change the path below
-	python_dir="/usr/local/lib/python2.7/site-packages/yt2mp3"
-	mkdir $python_dir
-	cp alb_add.py $python_dir
 	
-	if [ -e $python_dir/alb_add.py ]; then
+	if [ "$1" == "Linux" ]; then
+		sudo cp yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
+		sudo chmod +x $INSTALL_DIR/yt2mp3
+		sudo cp alb_add.py $INSTALL_DIR/alb_add
+		sudo chmod +x $INSTALL_DIR/alb_add
+
+	elif [ "$1" == "Darwin" ]; then
+		cp yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
+		chmod +x $INSTALL_DIR/yt2mp3
+		cp alb_add.py $INSTALL_DIR/alb_add
+		chmod +x $INSTALL_DIR/alb_add
+	fi
+		
+	if [ -e $INSTALL_DIR/alb_add ]; then
 		printf "alb_add installed\n"
 	fi
 	if [ -e $INSTALL_DIR/yt2mp3 ]; then
@@ -27,6 +39,10 @@ yt2mp3_install ()
 
 hb_install ()
 {
+	if [ -e $HOMEBREW_MOS ]; then
+			return 
+	fi
+
 	while [ 1 ]; do
 		echo -n "Homebrew is needed to run installer, would you like to install it [Y/N]: "
 		read opt
@@ -44,68 +60,76 @@ hb_install ()
 	done
 }
 
+youtube_install ()
+{
+	if ! [ -e $YOUTUBE_MOS ] && ! [ -e $YOUTUBE_LIN ]; then
+		printf "installing youtube-dl...\n"
+		if [ "$1" == "Linux" ]; then
+			sudo apt-get install youtube-dl -y
+		elif [ "$1" == "Darwin" ]; then
+			brew install youtube-dl
+		fi
+	fi
+	printf "youtube-dl installed\n"
+}
+
 eyed3_install ()
 {
-	brew install eyeD3
-	if [ -e $EYED3 ]; then # make sure it installed
-		printf "\nffmpeg missing or not installed correctly\n"
-		exit 1
+	if ! [ -e $EYED3_MOS ] && ! [ -e $EYED3_LIN ]; then
+		printf "installing eyeD3...\n"
+		if [ "$1" == "Linux" ]; then
+			sudo pip3 install eyeD3
+		elif [ "$1" == "Darwin" ]; then
+			pip2.7 install eyed3
+		fi
 	fi
+	printf "eyeD3 installed\n"
 }
 
 ffmpeg_install ()
 {
-	brew install ffmpeg
-	if ! [ -e $FFMPEG ]; then # make sure it installed
-		printf "\nffmpeg missing or not installed correctly\n"
-		exit 1
+	if ! [ -e $FFMPEG_MOS ] && ! [ -e $FFMPEG_LIN ]; then
+		printf "installing ffmpeg...\n"
+		if [ "$1" == "Linux" ]; then
+			sudo apt-get install ffmpeg -y
+		elif [ "$1" == "Darwin" ]; then
+			brew install ffmpeg
+		fi
 	fi
+	printf "ffmpeg installed\n"
 }
 
 python_install ()
 {
-	brew install python
-	if ! [ -e  $PYTHON ]; then
-		printf "\npython missing or not installed correctly\n"
-		exit 1
+	if ! [ -e $PYTHON_MOS ] && ! [ -e $PYTHON_LIN ]; then
+		printf "installing python...\n"
+		if [ "$1" == "Linux" ]; then
+			sudo apt-get install python3 python3-pip
+		elif [ "$1" == "Darwin" ]; then
+			brew install python
+		fi
 	fi
+	printf "python installed\n"
 }
-
-
-darwin_install (){
-	
-	if ! [ -e $HOMEBREW ]; then
-		hb_install
-	fi
-	printf "Homebrew installed\n"
-
-	if ! [ -e $EYED3 ]; then
-		eyed3_install
-	fi
-	printf "eyeD3 installed\n"
-
-	if ! [ -e $FFMPEG ]; then
-		ffmpeg_install
-	fi
-	printf "ffmpeg installed\n"
-
-	if ! [ -e $PYTHON ]; then
-		python_install
-	fi
-	printf "python2.7 installed\n"
-	
-	yt2mp3_install
-	printf "\nInstallation files no loager needed be sure to remove\n"
-	printf "them after installation is done\n"
-}
-
 
 # check what os is running
 if [ $(uname -s) == "Darwin" ]; then
-	darwin_install
-	printf "\n\nInstall Finished!\n"
+	os="Darwin"
+	hb_install # only for mac os
 elif [ $(uname -s) == "Linux" ]; then
-	echo
+	os="Linux"
 fi
+
+python_install $os # python install must be before eyed3
+
+eyed3_install $os
+
+ffmpeg_install $os
+
+youtube_install $os
+
+yt2mp3_install $os
+printf "\nInstallation files no loager needed be sure to remove\n"
+printf "them after installation is done\n"
 
 #ppa:mc3man/trusty-media

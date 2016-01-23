@@ -52,6 +52,8 @@ echo -n "Enter Song Title: "
 read title
 echo -n "Enter Album name: "
 read album
+echo -n "Enter Album Artist name: "
+read alb_artist
 echo -n "Enter Genre: "
 read genre
 
@@ -60,6 +62,7 @@ printf "\nConverting download to MP3 and adding tags."
 ffmpeg -loglevel $log -i "$file" \
 	-metadata title="$title" \
 	-metadata artist="$artist" \
+	-metadata album_artist="$alb_artist" \
 	-metadata album="$album" \
 	-metadata genre="$genre" \
        	-b:a 192K -vn "$title.mp3" &
@@ -90,7 +93,7 @@ while [ 1 ]; do # prompt user until correct input
 	fi
 done
 			
-python2.7 alb_add.py "$title.mp3" "$art_path" # add album art with python
+alb_add "$title.mp3" "$art_path" # add album art with python
 
 printf "\nYour song $title is located at $(pwd)\n"
 while [ 1 ]; do
