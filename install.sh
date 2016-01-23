@@ -104,7 +104,7 @@ python_install ()
 	if ! [ -e $PYTHON_MOS ] && ! [ -e $PYTHON_LIN ]; then
 		printf "installing python...\n"
 		if [ "$1" == "Linux" ]; then
-			sudo apt-get install python3 python3-pip
+			sudo apt-get install python3 python3-pip -y
 		elif [ "$1" == "Darwin" ]; then
 			brew install python
 		fi

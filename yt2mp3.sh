@@ -40,8 +40,8 @@ fi
 
 mkdir "$tmp_file" # tmp file to store download
 printf "\nDownloading from youtube, please wait."
-youtube-dl -f "$dl_quality" -o "$tmp_file/ytdl_out.%(ext)s" $link >/dev/null &
-status_ind $! # pass in pid
+youtube-dl -f "$dl_quality" -o "$tmp_file/ytdl_out.%(ext)s" $link >/dev/null
+# status_ind $! # pass in pid
 
 # search any video format
 file="$tmp_file/$(ls $tmp_file | grep '.wmv\|.avi\|.mp4\|.mkv')" # if video not found add .ext here
