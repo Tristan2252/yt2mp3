@@ -6,15 +6,26 @@ dl_quality="22"
 log=0 # amout of output for ffmpeg, check man page for more info
 
 # Function to show status indecator
-status_ind (){
+status_ind ()
+{
 	while kill -0 $1 2> /dev/null; do
 		printf "."
 		sleep 1
 	done
 }
 
+# Function for removing tmp files and folders
+clean_up ()
+{
+    rm -r "$tmp_file"
+    if [ -e output.jpg ]; then rm output.jpg; fi  # album art file made by alb_add.py
+}
+
 # if command line arg exists set = to link
-if [ $1 ]; then
+if [ "$1" == "-r" ]; then
+    clean_up
+    exit 0
+elif [ $1 ]; then
 	link=$1
 else
 	while [ -z "$link" ]; do # while link is null
@@ -111,9 +122,8 @@ while [ 1 ]; do
 done
 
 echo
+
 # cleaning up
-rm -r "$tmp_file"
-if [ -e output.jpg ]; then rm output.jpg; fi  # album art file made by alb_add.py
 
 exit 0
  
