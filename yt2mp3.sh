@@ -24,8 +24,7 @@ clean_up ()
 update ()
 {
     git clone https://github.com/Tristan2252/yt2mp3 $tmp_file
-    $tmp_file/install.sh &
-    status_ind $! # pass in pid
+    $tmp_file/install.sh &> /dev/null
     sudo rm -r "$tmp_file"
 }
 
