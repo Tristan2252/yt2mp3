@@ -12,6 +12,7 @@ YOUTUBE_LIN="/usr/bin/youtube-dl"
 EYED3_LIN="/usr/local/lib/python3.4/dist-packages/eyed3"
 FFMPEG_LIN="/usr/bin/ffmpeg"
 PYTHON_LIN="/usr/bin/python3.4"
+PIP_LIN="/usr/bin/pip3"
 
 yt2mp3_install ()
 {
