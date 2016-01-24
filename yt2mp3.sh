@@ -24,6 +24,12 @@ clean_up ()
 update ()
 {
     git clone https://github.com/Tristan2252/yt2mp3 $tmp_file
+    
+    # Linux should update youtube-dl as well, installer will detect that its not installed
+    if [ "$(uname -r)" == "Linux" ]; then
+        sudo rm /usr/bin/youtube-dl
+    fi
+
     $tmp_file/install.sh &> /dev/null
     sudo rm -r "$tmp_file"
     printf "\nUp to Date!\n\n"
