@@ -106,15 +106,21 @@ python_install ()
     if ! [ -e $PYTHON_MOS ] && ! [ -e $PYTHON_LIN ]; then
         printf "installing python...\n"
         if [ "$1" == "Linux" ]; then
-            sudo apt-get install python3 python3-pip -y
+            sudo apt-get install python3 -y
         elif [ "$1" == "Darwin" ]; then
             brew install python
+        fi
+    fi
+    
+    if [ "$1" == "Linux" ]; then
+        if ! [ -e $PIP_LIN ]; then
+            sudo apt-get install python3-pip -y
         fi
     fi
     printf "python installed\n"
 }
 
-# check what os is running
+
 if [ $(uname -s) == "Darwin" ]; then
     os="Darwin"
     hb_install # only for mac os
