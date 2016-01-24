@@ -25,7 +25,7 @@ update ()
 {
     git clone https://github.com/Tristan2252/yt2mp3 $tmp_file
     $tmp_file/install.sh
-    sudo clean_up
+    sudo rm -r "$tmp_file"
 }
 
 mkdir "$tmp_file" # tmp file to store download
