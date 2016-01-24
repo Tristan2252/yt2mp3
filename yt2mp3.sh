@@ -21,6 +21,7 @@ clean_up ()
     if [ -e output.jpg ]; then rm output.jpg; fi  # album art file made by alb_add.py
 }
 
+# Runs update by giting leatest version and running install.sh
 update ()
 {
     git clone https://github.com/Tristan2252/yt2mp3 $tmp_file
@@ -35,14 +36,34 @@ update ()
     printf "\nUp to Date!\n\n"
 }
 
-mkdir "$tmp_file" # tmp file to store download
+# Help menu for users
+usage ()
+{
+    printf "\nYt2mp3\n\n"
+
+    printf "Git Repo:\n"
+    printf "\thttps://github.com/Tristan2252/yt2mp3\n\n"
+
+    printf "Download and convert from Youtube:\n"
+    printf "\tyt2mp3 https://youtube.com/example\n\n"
+
+    printf "Optional:\n"
+    printf "\t-r   Remove temp file located in /tmp/yt2mp3\n"
+    printf "\t-h   Help page for yt2mp3\n"
+    printf "\t-u   Update current yt2mp3 program\n\n"
+
+}
 
 # if command line arg exists set = to link
 if [ "$1" == "-r" ]; then
     clean_up
     exit 0
 elif [ "$1" == "-u" ]; then
+    mkdir "$tmp_file" # tmp file to store download
     update
+    exit 0
+elif [ "$1" == "-h" ]; then
+    usage
     exit 0
 elif [ $1 ]; then
     link=$1
@@ -57,6 +78,7 @@ fi
 
 ####  DOWNLOAD ####
 
+mkdir "$tmp_file" # tmp file to store download
 printf "\nDownloading from youtube, please wait."
 youtube-dl -f "$dl_quality" -o "$tmp_file/ytdl_out.%(ext)s" $link >/dev/null &
 status_ind $! # pass in pid

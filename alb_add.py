@@ -14,27 +14,36 @@ def check_file(file_name):
     if path.isfile(file_name):
         return 0
     else:
-        print "{} file not found".format(file_name)
+        print "{} is not a file or was not found".format(file_name)
         return 1
 
+def help_page():
+    print "\nAlb_add\n"
+    print "To add album art to .mp3 use:"
+    print "\t alb_add /path/to/song.mp3 /path/to/art.jpg\n"
 
 def main():
-    filename = str(sys.argv[1]) # arg 1 sould be filename
-    if not filename:
-        print "Please use first argument as file name"
-        return 3
-
-    if ".jpg" not in str(sys.argv[2]): # if file not .jpg ask for .jpg
-        art = input("Enter a .jpg file: ")
-    else:
-        art = str(sys.argv[2]) # arg 2 will be the picture to add 
     
-    if not art:
-        print "Please use second argument as .jpg file name"
+    try:
+        filename = str(sys.argv[1]) # arg 1 sould be filename
+        art = str(sys.argv[2]) # arg 2 will be the picture to add 
+    except IndexError:
+        help_page()
         return 3
 
-    check_file(filename)
-    check_file(art)
+    while check_file(filename):
+        filename = raw_input("Enter valid file path for mp3: ")
+
+    while check_file(art):
+        art = raw_input("Enter valid path to art: ")
+    
+    while ".mp3" not in filename: # if file not .jpg ask for .jpg
+        print "Song must be of format .jpg"
+        filename = raw_input("Enter a .mp3 file: ")
+    
+    while ".jpg" or ".JPG" not in art: # if file not .jpg ask for .jpg
+        print "Art must be of format .jpg"
+        art = raw_input("Enter a .jpg file: ")
 
     imagedata = open(art, "rb").read() # open image
 
