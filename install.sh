@@ -1,6 +1,7 @@
 #!/bin/bash
 
 INSTALL_DIR="/usr/local/bin"
+BASEDIR="$(dirname $0)"
 
 HOMEBREW_MOS="/usr/local/bin/brew"
 EYED3_MOS="/usr/local/lib/python2.7/site-packages/eyed3"
@@ -18,15 +19,15 @@ yt2mp3_install ()
 {
     
     if [ "$1" == "Linux" ]; then
-        sudo cp yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
+        sudo cp $BASEDIR/yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
         sudo chmod +x $INSTALL_DIR/yt2mp3
-        sudo cp alb_add.py $INSTALL_DIR/alb_add
+        sudo cp $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
         sudo chmod +x $INSTALL_DIR/alb_add
 
     elif [ "$1" == "Darwin" ]; then
-        cp yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
+        cp $BASEDIR/yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
         chmod +x $INSTALL_DIR/yt2mp3
-        cp alb_add.py $INSTALL_DIR/alb_add
+        cp $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
         chmod +x $INSTALL_DIR/alb_add
     fi
         
