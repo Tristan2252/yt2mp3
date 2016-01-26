@@ -164,6 +164,7 @@ done
 echo
 
 # cleaning up
+clean_up
 
 exit 0
  
