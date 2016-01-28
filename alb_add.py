@@ -22,11 +22,22 @@ def help_page():
     print "To add album art to .mp3 use:"
     print "\t alb_add /path/to/song.mp3 /path/to/art.jpg\n"
 
-def make_path(path):
-    if (path[1] & path[-1]) == "'":
-        return path[1:-1]
-    else:
-        return path
+def parce_path(path):
+    cnt = 0
+    new_str = ""
+
+    for i in path:
+        if (cnt == 0) & (i == "'"):
+            pass
+        elif (cnt == len(path)) & (i == "'"):
+            pass
+        elif i == " ":
+            new_str += "\{}".format(i)
+        else:
+            new_str += i
+        cnt += 1
+
+    return new_str
 
 def main():
     
@@ -39,19 +50,21 @@ def main():
 
     while check_file(filename):
         in_put = raw_input("Enter valid file path for mp3: ")
-        filename = make_path(in_put)
+        filename = parce_path(in_put)
 
     while check_file(art):
         in_put = raw_input("Enter valid path to art: ")
-        art = make_path(in_put)
+        art = parce_path(in_put)
     
     while ".mp3" not in filename: # if file not .jpg ask for .jpg
         print "Song must be of format .jpg"
-        filename = raw_input("Enter a .mp3 file: ")
+        in_put = raw_input("Enter a .mp3 file: ")
+        filename = parce_path(in_put)
     
     while ".jpg" not in art: # if file not .jpg ask for .jpg
         print "Art must be of format .jpg"
-        art = raw_input("Enter a .jpg file: ")
+        in_put = raw_input("Enter a .jpg file: ")
+        art = parce_path(in_put)
 
     imagedata = open(art, "rb").read() # open image
 
@@ -61,4 +74,5 @@ def main():
     print "\n\nAdded {} to {} as album conver!\n".format(art, filename)
 
 if __name__ == "__main__":
-    main()
+    # main()
+    print "{}".format(parce_path('/path/to test/program'))
