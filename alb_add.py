@@ -74,5 +74,5 @@ def main():
     print "\n\nAdded {} to {} as album conver!\n".format(art, filename)
 
 if __name__ == "__main__":
-    # main()
-    print "{}".format(parce_path('/path/to test/program'))
+    main()
+    

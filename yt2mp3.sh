@@ -80,7 +80,7 @@ fi
 
 mkdir "$tmp_file" # tmp file to store download
 printf "\nDownloading from youtube, please wait."
-youtube-dl -f "$dl_quality" -o "$tmp_file/ytdl_out.%(ext)s" $link >/dev/null &
+youtube-dl -r 25.5M -f "$dl_quality" -o "$tmp_file/ytdl_out.%(ext)s" $link >/dev/null &
 status_ind $! # pass in pid
 
 # search any video format
