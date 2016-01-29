@@ -26,13 +26,16 @@ def parce_path(path):
     cnt = 0
     new_str = ""
 
+    if path[-1] == " ":
+        path = path[:-1]
+
     for i in path:
         if (cnt == 0) & (i == "'"):
             pass
-        elif (cnt == len(path)) & (i == "'"):
+        elif (cnt == len(path) - 1) & (i == "'"):
             pass
-        elif i == " ":
-            new_str += "\{}".format(i)
+        elif path[cnt:cnt+2] == "\ ":
+            pass
         else:
             new_str += i
         cnt += 1
