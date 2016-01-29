@@ -1,20 +1,24 @@
 #!/bin/bash
 
 INSTALL_DIR="/usr/local/bin"
-BASEDIR="$(dirname $0)"
+BASEDIR="$(dirname $0)" # dir of install.sh
 
+# MAC OS test dir's
 HOMEBREW_MOS="/usr/local/bin/brew"
 EYED3_MOS="/usr/local/lib/python2.7/site-packages/eyed3"
 PYTHON_MOS="/usr/local/lib/python2.7"
 FFMPEG_MOS="/usr/local/bin/ffmpeg"
 YOUTUBE_MOS="/usr/local/bin/youtube-dl"
 
+# LINUX test dir's
 YOUTUBE_LIN="/usr/bin/youtube-dl"
 EYED3_LIN="/usr/local/lib/python3.4/dist-packages/eyed3"
 FFMPEG_LIN="/usr/bin/ffmpeg"
 PYTHON_LIN="/usr/bin/python3.4"
 PIP_LIN="/usr/bin/pip3"
 
+# Installes yt2mp3 by copying alb_add and yt2mp3 to install dir and
+# making exacutable
 yt2mp3_install ()
 {
     
@@ -30,7 +34,8 @@ yt2mp3_install ()
         cp $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
         chmod +x $INSTALL_DIR/alb_add
     fi
-        
+    
+    # check if installed correctly
     if [ -e $INSTALL_DIR/alb_add ]; then
         printf "alb_add installed\n"
     fi
@@ -39,6 +44,7 @@ yt2mp3_install ()
     fi
 }
 
+# HomeBrew installer for Mac OS
 hb_install ()
 {
     if [ -e $HOMEBREW_MOS ]; then
@@ -53,7 +59,7 @@ hb_install ()
         elif [ $opt == "Y" ]; then
             ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
             printf "\n\nHomebrew Installed\n"
-            printf "Learn more about homebrew at: \n"
+            printf "Learn more about homebrew at: \n" # tell user about homebrew if they dont know
             printf "https://github.com/Homebrew/homebrew/tree/master/share/doc/homebrew#readme\n\n"
             break
         else
@@ -62,6 +68,8 @@ hb_install ()
     done
 }
 
+# Youtube-dl install, manual install used for linux to get
+# the latest version (older version has a bug)
 youtube_install ()
 {
     if ! [ -e $YOUTUBE_MOS ] && ! [ -e $YOUTUBE_LIN ]; then
@@ -77,6 +85,7 @@ youtube_install ()
     printf "youtube-dl installed\n"
 }
 
+# Installes eyed3 python modual for alb_add script
 eyed3_install ()
 {
     if ! [ -e $EYED3_MOS ] && ! [ -e $EYED3_LIN ]; then
@@ -90,6 +99,7 @@ eyed3_install ()
     printf "eyeD3 installed\n"
 }
 
+# ffmpeg installer 
 ffmpeg_install ()
 {
     if ! [ -e $FFMPEG_MOS ] && ! [ -e $FFMPEG_LIN ]; then
@@ -103,6 +113,8 @@ ffmpeg_install ()
     printf "ffmpeg installed\n"
 }
 
+# Python installer, installes python as well as pip for 
+# linux.
 python_install ()
 {
     if ! [ -e $PYTHON_MOS ] && ! [ -e $PYTHON_LIN ]; then
@@ -122,7 +134,7 @@ python_install ()
     printf "python installed\n"
 }
 
-
+# Determine the os
 if [ $(uname -s) == "Darwin" ]; then
     os="Darwin"
     hb_install # only for mac os
