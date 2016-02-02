@@ -54,37 +54,42 @@ usage ()
     printf "\t-h   Help page for yt2mp3\n"
     printf "\t-u   Update current yt2mp3 program\n\n"
 
+    printf "In Program\n"
+    printf "Adding Tags\n"
+    printf "\tUse '/back' to redo \n"
 }
 
 # get song info from usr
 get_tags ()
 {
-    printf "\n\n"
     tags="Artist Song Album Album_Artist Genre"
-    
-    for i in $tags; do
+
+    ext=1
+    while [ $ext == 1 ]; do   
+        printf "\n\n"
+        for i in $tags; do
         
-        while [ 1 ]; do
             echo -n "Enter $i: "
             read input
             
-            if [ "$input" != "/back" ]; then
-                break;
+            if [ "$input" == "/back" ]; then
+                break; # restart inner loop
             fi
-        done
 
-        case $i in
-            Artist)
-                artist=$input;;
-            Song) 
-                title=$input;;
-            Album)
-                album=$input;;
-            Album_Artist)
-                alb_artist=$input;;
-            Genre)
-                genre=$input;;
-        esac
+            case $i in
+                Artist)
+                    artist=$input;;
+                Song) 
+                    title=$input;;
+                Album)
+                    album=$input;;
+                Album_Artist)
+                    alb_artist=$input;;
+                Genre)
+                    genre=$input
+                    ext=0;; # set to 0 to break outer loop
+            esac
+        done
     done
 }
 
