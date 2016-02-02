@@ -56,6 +56,38 @@ usage ()
 
 }
 
+# get song info from usr
+get_tags ()
+{
+    printf "\n\n"
+    tags="Artist Song Album Album_Artist Genre"
+    
+    for i in $tags; do
+        
+        while [ 1 ]; do
+            echo -n "Enter $i: "
+            read input
+            
+            if [ "$input" != "/back" ]; then
+                break;
+            fi
+        done
+
+        case $i in
+            Artist)
+                artist=$input;;
+            Song) 
+                title=$input;;
+            Album)
+                album=$input;;
+            Album_Artist)
+                alb_artist=$input;;
+            Genre)
+                genre=$input;;
+        esac
+    done
+}
+
 # if command line arg exists set = to link
 if [ "$1" == "-r" ]; then
     clean_up
@@ -97,18 +129,7 @@ if ! [ -e $file ]; then
     exit 0
 fi
 
-# get song info from usr
-printf "\n\n"
-echo -n "Enter artist name: "
-read artist
-echo -n "Enter Song Title: "
-read title
-echo -n "Enter Album name: "
-read album
-echo -n "Enter Album Artist name: "
-read alb_artist
-echo -n "Enter Genre: "
-read genre
+get_tags
 
 # ffmpeg command for converting to mp3
 printf "\nConverting download to MP3 and adding tags."
