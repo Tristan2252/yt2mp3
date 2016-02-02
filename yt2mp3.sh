@@ -146,7 +146,7 @@ while [ 1 ]; do # prompt user until correct input
     fi
 done
             
-alb_add "$title.mp3" $art_path # add album art with python
+alb_add "$title.mp3" "$art_path" # add album art with python
 
 printf "\nYour song $title is located at $(pwd)\n"
 while [ 1 ]; do
