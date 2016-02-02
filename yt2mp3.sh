@@ -29,8 +29,10 @@ update ()
     # Linux should update youtube-dl as well, installer will detect that its not installed
     if [ "$(uname -r)" == "Linux" ]; then
         sudo rm /usr/bin/youtube-dl
+        sudo rm /usr/local/bin/yt2mp3
+        sudo rm /usr/local/bin/alb_add
     fi
-
+    
     $tmp_file/install.sh &> /dev/null
     sudo rm -r "$tmp_file"
     printf "\nUp to Date!\n\n"
@@ -144,7 +146,7 @@ while [ 1 ]; do # prompt user until correct input
     fi
 done
             
-alb_add "$title.mp3" "$art_path" # add album art with python
+alb_add "$title.mp3" $art_path # add album art with python
 
 printf "\nYour song $title is located at $(pwd)\n"
 while [ 1 ]; do
