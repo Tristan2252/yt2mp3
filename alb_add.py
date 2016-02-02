@@ -57,8 +57,8 @@ def parce_path(path):
 def main():
     
     try:
-        filename = str(sys.argv[1]) # arg 1 sould be filename
-        art = str(sys.argv[2]) # arg 2 will be the picture to add 
+        filename = sys.argv[1] # arg 1 sould be filename
+        art = sys.argv[2] # arg 2 will be the picture to add 
     except IndexError:
         help_page()
         return 3
