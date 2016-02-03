@@ -94,25 +94,34 @@ get_tags ()
 }
 
 # if command line arg exists set = to link
-if [ "$1" == "-r" ]; then
-    clean_up
-    exit 0
-elif [ "$1" == "-u" ]; then
-    mkdir "$tmp_file" # tmp file to store download
-    update
-    exit 0
-elif [ "$1" == "-h" ]; then
-    usage
-    exit 0
-elif [ $1 ]; then
-    link=$1
-else
-    while [ -z "$link" ]; do # while link is null
-        echo
-        echo -n "Enter video link: "
-        read link
-        echo
-    done
+case $1 in
+    -r)
+         clean_up
+         exit 0;;
+    -u)
+         mkdir $tmp_file
+         update;;
+    -h)
+         usage
+         exit 0;;
+    "")
+        while [ -z "$link" ]; do # while link is null
+            echo
+            echo -n "Enter video link: "
+            read link
+            echo
+        done;;
+     *)
+        link=$1;;
+esac
+
+case $2 in
+    -t)
+        ftime=$3;;
+esac
+
+if [ -z "$ftime" ]; then
+    ftime=00:10
 fi
 
 ####  DOWNLOAD ####
@@ -163,7 +172,7 @@ while [ 1 ]; do # prompt user until correct input
     elif [ $opt == "V" ]; then
         art_path="output.jpg"
         printf "\nGetting video thumbnail."
-        ffmpeg -loglevel $log -i $file -ss 00:00:14.000 -vframes 1 $art_path >/dev/null &
+        ffmpeg -loglevel $log -i $file -ss 00:00:$ftime.000 -vframes 1 $art_path >/dev/null &
         status_ind $! # pass in pid
         break
     else
