@@ -172,7 +172,7 @@ while [ 1 ]; do # prompt user until correct input
     elif [ $opt == "V" ]; then
         art_path="output.jpg"
         printf "\nGetting video thumbnail."
-        ffmpeg -loglevel $log -i $file -ss 00:00:$ftime.000 -vframes 1 $art_path >/dev/null &
+        ffmpeg -loglevel $log -i $file -ss 00:$ftime.000 -vframes 1 $art_path >/dev/null &
         status_ind $! # pass in pid
         break
     else
