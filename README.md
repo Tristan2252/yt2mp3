@@ -12,7 +12,7 @@ the commands needed to achieve proper video download and mp3 conversion.
 - Embedding of album art from Youtube video or custom .jpg
 
 ###Usage
-```bash
+```
 Download and convert from Youtube:
     yt2mp3 https://youtube.com/example
 
@@ -20,10 +20,11 @@ Optional:
     -r   Remove temp file located in /tmp/yt2mp3
     -h   Help page for yt2mp3
     -u   Update current yt2mp3 program
+    -t [00:00]   Change time in minutes that thumbnail is extracted from video
 
 In Program
-Adding Tag
-Use '/back' to redo entered tags
+Adding Tags
+    /back  use to redo the previously entered tags
 ```
 
 ###Installing

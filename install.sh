@@ -21,19 +21,20 @@ PIP_LIN="/usr/bin/pip3"
 # making exacutable
 yt2mp3_install ()
 {
-    
+    echo # for clean output 
     if [ "$1" == "Linux" ]; then
-        sudo cp $BASEDIR/yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
+        sudo cp -v $BASEDIR/yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
         sudo chmod +x $INSTALL_DIR/yt2mp3
-        sudo cp $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
+        sudo cp -v $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
         sudo chmod +x $INSTALL_DIR/alb_add
 
     elif [ "$1" == "Darwin" ]; then
-        cp $BASEDIR/yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
+        cp -v $BASEDIR/yt2mp3.sh $INSTALL_DIR/yt2mp3 # copy bash script to bin
         chmod +x $INSTALL_DIR/yt2mp3
-        cp $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
+        cp -v $BASEDIR/alb_add.py $INSTALL_DIR/alb_add
         chmod +x $INSTALL_DIR/alb_add
     fi
+    echo # for clean output 
     
     # check if installed correctly
     if [ -e $INSTALL_DIR/alb_add ]; then
