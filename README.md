@@ -12,12 +12,19 @@ the commands needed to achieve proper video download and mp3 conversion.
 - Embedding of album art from Youtube video or custom .jpg
 
 ###Usage
-Download and convert youtube video  
- ` ~ yt2mp3 http://youtube.com/example`  
-Update yt2mp3  
- ` ~ yt2mp3 -u`  
-Remove tmp file if program exited unexpectedly  
- ` ~ yt2mp3 -r`  
+```bash
+Download and convert from Youtube:
+    yt2mp3 https://youtube.com/example
+
+Optional:
+    -r   Remove temp file located in /tmp/yt2mp3
+    -h   Help page for yt2mp3
+    -u   Update current yt2mp3 program
+
+In Program
+Adding Tag
+Use '/back' to redo entered tags
+```
 
 ###Installing
 Installing yt2mp3 is very easy, simply run `./install.sh` within the cloned folder.  
