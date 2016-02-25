@@ -12,9 +12,9 @@ YOUTUBE_MOS="/usr/local/bin/youtube-dl"
 
 # LINUX test dir's
 YOUTUBE_LIN="/usr/bin/youtube-dl"
-EYED3_LIN="/usr/local/lib/python3.4/dist-packages/eyed3"
+EYED3_LIN="/usr/local/lib/python2.7/dist-packages/eyed3"
 FFMPEG_LIN="/usr/bin/ffmpeg"
-PYTHON_LIN="/usr/bin/python3.4"
+PYTHON_LIN="/usr/bin/python2.7"
 PIP_LIN="/usr/bin/pip3"
 
 # Installes yt2mp3 by copying alb_add and yt2mp3 to install dir and
@@ -92,7 +92,7 @@ eyed3_install ()
     if ! [ -e $EYED3_MOS ] && ! [ -e $EYED3_LIN ]; then
         printf "installing eyeD3...\n"
         if [ "$1" == "Linux" ]; then
-            sudo pip3 install eyeD3
+            sudo pip install eyeD3
         elif [ "$1" == "Darwin" ]; then
             pip2.7 install eyed3
         fi
@@ -121,7 +121,7 @@ python_install ()
     if ! [ -e $PYTHON_MOS ] && ! [ -e $PYTHON_LIN ]; then
         printf "installing python...\n"
         if [ "$1" == "Linux" ]; then
-            sudo apt-get install python3 -y
+            sudo apt-get install python -y
         elif [ "$1" == "Darwin" ]; then
             brew install python
         fi
@@ -129,7 +129,7 @@ python_install ()
     
     if [ "$1" == "Linux" ]; then
         if ! [ -e $PIP_LIN ]; then
-            sudo apt-get install python3-pip -y
+            sudo apt-get install python-pip -y
         fi
     fi
     printf "python installed\n"
