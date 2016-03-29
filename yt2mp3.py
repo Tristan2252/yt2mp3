@@ -1,54 +1,61 @@
 import sys, getopt
 import subprocess as sp
+import time
 import os
 
-STATUS_FLAGS='& while kill -0 $! 2> /dev/null; do printf "."; sleep 1; done'
-OUTPUT_FLAGS='> /dev/null'
+UPDATE_CMD = 'sudo curl https://yt-dl.org/downloads/2016.03.06/youtube-dl -o /usr/local/bin/youtube-dl; sudo chmod a+rx /usr/local/bin/youtube-dl'
+DOWNLOAD_PATH = "/tmp"
 FFMPEG_BIN ='ffmpeg'
 
-# Update youtube-dl for unix based systems by downloding current
-# version and makeing exe
-def update_yt():
-    update_cmd = 'sudo curl https://yt-dl.org/downloads/2016.03.06/youtube-dl -o /usr/local/bin/youtube-dl'
-    cmd = os.popen(update_cmd, "r") # run update bash command
+def get_frame(vid_path, verbose, vid_time='00:00:10.000'):
+    output_path = "{}/output.jpg".format(DOWNLOAD_PATH)
+
+    if not check_file(output_path):
+        bash_call("rm {}".format(output_path), verbose)
+
+    command = "{} -i {} -ss {} -vframes 1 {}".format(FFMPEG_BIN, vid_path, vid_time, output_path)
+    bash_call(command, verbose)
+
+def get_path():
+    proc = sp.Popen("ls " + DOWNLOAD_PATH, stdout=sp.PIPE, shell=True) # pipe stdout to proc
+    grep_proc = sp.Popen("grep .mkv\|.mp4".split(), stdin=proc.stdout, stdout=sp.PIPE) # pipe proc.stdout to grep
+    out = grep_proc.communicate()[0]
+    out = out.decode('ascii') # convert to sting
+    out = out.rstrip("\n") # remove newline
+    return "{}/{}".format(DOWNLOAD_PATH, out.replace(" ", "\ "))
+
+def bash_call(cmd, verbose):
+    if verbose:
+        print(cmd)
+        try:
+            proc = sp.Popen(cmd, shell=True)
+            proc.wait()
+        except KeyboardInterrupt:
+            print("\nProgram Stopped: BY USER")
+            return 1
     
-    # print output to the user
-    while 1:
-        line = cmd.readline() 
-        if not line:
+    else:
+        try:
+            proc = sp.Popen(cmd, stdout=sp.PIPE, shell=True, stderr=sp.PIPE)
+            status(proc)
+        except KeyboardInterrupt:
+            print("\nProgram Stopped: BY USER")
+            return 1
+
+def status(p):
+    while True:
+        if p.poll() != None:
             break
-        print("{}".format(line))
+        print('.', end="", flush=True) # print status
+        time.sleep(1)
 
-    # makeing exe
-    chmod_cmd = 'sudo chmod a+rx /usr/local/bin/youtube-dl'
-    cmd = os.popen(chmod_cmd, "r")
-
-    while 1:
-        line = cmd.readline() 
-        if not line:
-            break
-        print("{}".format(line))
-
-
-def get_frame(vid_path, vid_time='00:00:10.000'):
-    
-    command = "{} -i {} -ss {} -vframes 1 output.jpg {} {}".format(FFMPEG_BIN, vid_path, vid_time,OUTPUT_FLAGS, STATUS_FLAGS)
-    sp.call(command, shell=True)
-
-def ytdl(url):
-
-    #try:
-    command = "youtube-dl {} {} {}".format(url, OUTPUT_FLAGS, STATUS_FLAGS)
-    sp.call(command, shell=True)
-    #except KeyboardInterrupt:
-    #    sys.exit()
-
+    #proc.communicate()[0] # allow for ctl-c and print stderr
+        
 # use os.path to check if file exists or not
 def check_file(path):
     if os.path.isfile(path):
         return 0
     else:
-        print("Error: check_file: FILE NOT FOUND")
         return 1
 
 
@@ -72,23 +79,25 @@ def main():
         opts, args = getopt.getopt(flags, "f:u")
     except getopt.GetoptError as err:
         print("Error")
-
+    
+    verbose = 0
     if '-v' in flags:
-        OUTPUT_FLAGS = ''
+        verbose = 1
 
     url = check_url(flags)
     if url:
-        ytdl(url)
+        bash_call('youtube-dl -r 25.5M -f 22 -o "{}/%(title)s.%(ext)s" {}'.format(DOWNLOAD_PATH, url), verbose)
+        file_path = get_path()
+        print("\nGetting Album Art")
+        get_frame(file_path, verbose)
 
     for opt, arg in opts: # loop through opts and args
         if opt == '-u':
-            update_yt()
+            bash_call(UPDATE_CMD)
         if opt == '-f':
-            file_path = arg.replace(" ", "\ ") # FFMPEG runs through bash witch needs '\ ' as a space
             get_frame(file_path)
 
-    return
-    print("Error: main: NOT A VALID OPTION")
+    print("")
 
 if __name__ == "__main__":
     main()
