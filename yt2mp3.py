@@ -1,6 +1,10 @@
 import sys, getopt
-import cv2
+import subprocess as sp
 import os
+
+STATUS_FLAGS='& while kill -0 $! 2> /dev/null; do printf "."; sleep 1; done'
+OUTPUT_FLAGS='> /dev/null'
+FFMPEG_BIN ='ffmpeg'
 
 # Update youtube-dl for unix based systems by downloding current
 # version and makeing exe
@@ -26,40 +30,65 @@ def update_yt():
         print("{}".format(line))
 
 
-def get_frame(vid_path, vid_time=12000):
-    vid_pic = cv2.VideoCapture(vid_path) 
-    vid_pic.set(cv2.CAP_PROP_POS_MSEC, vid_time) # video time to capture from
+def get_frame(vid_path, vid_time='00:00:10.000'):
+    
+    command = "{} -i {} -ss {} -vframes 1 output.jpg {} {}".format(FFMPEG_BIN, vid_path, vid_time,OUTPUT_FLAGS, STATUS_FLAGS)
+    sp.call(command, shell=True)
 
-    pic = vidcap.read()
-    if pic: # if read was successful the write to file
-        cv2.imwrite("thumbnail.jpg", pic)
-    else:
-        print("Error: get_frame: READ ERROR")
-        print("Input Path: {}".format(path))
+def ytdl(url):
 
+    #try:
+    command = "youtube-dl {} {} {}".format(url, OUTPUT_FLAGS, STATUS_FLAGS)
+    sp.call(command, shell=True)
+    #except KeyboardInterrupt:
+    #    sys.exit()
 
 # use os.path to check if file exists or not
 def check_file(path):
     if os.path.isfile(path):
-        pass
+        return 0
     else:
         print("Error: check_file: FILE NOT FOUND")
+        return 1
+
+
+def check_url(strings):
+    url_str = ""
+    for i, string in enumerate(strings):
+        for letter in string:
+                url_str += str(letter)
+                if url_str == "https://www.youtube.com/":
+                    print(string)
+                    return string
+                if url_str == "http://www.youtube.com/":
+                    print(string)
+                    return string
+    return False
 
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:u")
+        flags = sys.argv[1:]
+        opts, args = getopt.getopt(flags, "f:u")
     except getopt.GetoptError as err:
         print("Error")
 
+    if '-v' in flags:
+        OUTPUT_FLAGS = ''
+
+    url = check_url(flags)
+    if url:
+        ytdl(url)
+
     for opt, arg in opts: # loop through opts and args
-        if opt == "-u":
+        if opt == '-u':
             update_yt()
-        elif opt == "-f":
-            check_file(arg) # check if file exists
-            get_frame(arg)
-        else:
-            print("Error: main: NOT A VALID OPTION")
+        if opt == '-f':
+            file_path = arg.replace(" ", "\ ") # FFMPEG runs through bash witch needs '\ ' as a space
+            get_frame(file_path)
+
+    return
+    print("Error: main: NOT A VALID OPTION")
 
 if __name__ == "__main__":
     main()
