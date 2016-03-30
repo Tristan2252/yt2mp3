@@ -1,5 +1,6 @@
 import sys, getopt
 import subprocess as sp
+import eyed3
 import time
 import os
 
@@ -24,6 +25,37 @@ def get_path():
     out = out.rstrip("\n") # remove newline
     return "{}/{}".format(DOWNLOAD_PATH, out.replace(" ", "\ "))
 
+def get_tags():
+    artist = input("Enter Artist: ")
+    song = input("Enter Song Name: ")
+    album = input("Enter Album Name: ")
+    alb_artist = input("Enter Album Artist: ")
+    genre = input("Enter Genre: ")
+
+    tags = {"artist": artist, "song": song, "album": album, "alb_artist": alb_artist, "genre": genre}
+    return tags
+
+def set_tags(tag_lst, file_path, verbose):
+    cmd = "ffmpeg -i {} -metadata title={} -metadata artist={} -metadata album_artist={}"\
+            " -metadata album={} -metadata genre={} -b:a 192K -vn {}.mp3".format(file_path,
+                    tag_lst["song"],
+                    tag_lst["artist"],
+                    tag_lst["alb_artist"],
+                    tag_lst["album"],
+                    tag_lst["genre"],
+                    tag_lst["song"])
+
+    bash_call(cmd, verbose)
+
+def set_art(file_path):
+    art_path = "{}/output.jpg".format(DOWNLOAD_PATH)
+    imagedata = open(art_path, "rb").read() # open image
+
+    audiofile = eyed3.load(file_path) # load image into eyed3
+    audiofile.tag.images.set(3, imagedata, "image/jpeg", u" ")
+    audiofile.tag.save()
+    print("\n\nAdded {} to {} as album conver!\n").format(DOWNLOAD_PATH + "/output.jpg", file_path)
+
 def bash_call(cmd, verbose):
     if verbose:
         print(cmd)
@@ -33,7 +65,7 @@ def bash_call(cmd, verbose):
         except KeyboardInterrupt:
             print("\nProgram Stopped: BY USER")
             return 1
-    
+
     else:
         try:
             proc = sp.Popen(cmd, stdout=sp.PIPE, shell=True, stderr=sp.PIPE)
@@ -49,8 +81,6 @@ def status(p):
         print('.', end="", flush=True) # print status
         time.sleep(1)
 
-    #proc.communicate()[0] # allow for ctl-c and print stderr
-        
 # use os.path to check if file exists or not
 def check_file(path):
     if os.path.isfile(path):
@@ -79,7 +109,7 @@ def main():
         opts, args = getopt.getopt(flags, "f:u")
     except getopt.GetoptError as err:
         print("Error")
-    
+
     verbose = 0
     if '-v' in flags:
         verbose = 1
@@ -88,16 +118,25 @@ def main():
     if url:
         bash_call('youtube-dl -r 25.5M -f 22 -o "{}/%(title)s.%(ext)s" {}'.format(DOWNLOAD_PATH, url), verbose)
         file_path = get_path()
+
         print("\nGetting Album Art")
         get_frame(file_path, verbose)
+        
+        song_tags = get_tags()
+        print("\nSetting Song Tags")
+        set_tags(song_tags, file_path, verbose)
+        print("\nSetting Album Art")
+        set_art("Test.mp3")
 
-    for opt, arg in opts: # loop through opts and args
-        if opt == '-u':
-            bash_call(UPDATE_CMD)
-        if opt == '-f':
-            get_frame(file_path)
+        for opt, arg in opts: # loop through opts and args
+            if opt == '-u':
+                bash_call(UPDATE_CMD)
+            if opt == '-f':
+                file_path = input("enter file path: ")
+                get_frame(file_path, verbose)
 
-    print("")
+        print("")
 
 if __name__ == "__main__":
-    main()
+        set_art("Test.mp3")
+    
