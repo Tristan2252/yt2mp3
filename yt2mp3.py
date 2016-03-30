@@ -1,6 +1,5 @@
 import sys, getopt
 import subprocess as sp
-import eyed3
 import time
 import os
 
@@ -21,7 +20,7 @@ def get_path():
     proc = sp.Popen("ls " + DOWNLOAD_PATH, stdout=sp.PIPE, shell=True) # pipe stdout to proc
     grep_proc = sp.Popen("grep .mkv\|.mp4".split(), stdin=proc.stdout, stdout=sp.PIPE) # pipe proc.stdout to grep
     out = grep_proc.communicate()[0]
-    #out = out.decode('ascii') # convert to sting
+    out = out.decode('ascii') # convert to sting
     return "{}/{}".format(DOWNLOAD_PATH, parce_path(out))
 
 def get_tags():
@@ -47,11 +46,22 @@ def set_tags(tag_lst, file_path, verbose):
     bash_call(cmd, verbose)
 
 def set_art(file_path, verbose):
-    bash_call("alb_add {} {}/output.jpg".format(file_path, DOWNLOAD_PATH), verbose)
+    print("Use custom album art or keep videos?")
+    print("\tV: keep video album art")
+    print("\tC: use custom")
+    opt = input("Option: ")
+
+    if opt == 'V' or opt.lower() == 'v':
+        bash_call("alb_add {} {}/output.jpg".format(file_path, DOWNLOAD_PATH), verbose)
+
+    else:
+        art_path = input("Enter path of custom album art: ")
+        art_path = parce_path(art_path)
+        bash_call("alb_add {} {}".format(file_path, art_path), verbose)
+
 
 def parce_path(string):
-    path = string.decode('ascii')
-    path = path.replace(" ", "\ ")
+    path = string.replace(" ", "\ ")
     path = path.replace("(", "\(")
     path = path.replace(")", "\)")
     path = path.rstrip("\n") # remove newline
@@ -97,17 +107,26 @@ def check_url(strings):
         for letter in string:
                 url_str += str(letter)
                 if url_str == "https://www.youtube.com/":
-                    print(string)
+                    print("Downloading from: " + string)
                     return string
                 if url_str == "http://www.youtube.com/":
-                    print(string)
+                    print("Downloading from: " + string)
                     return string
     return False
 
 
 def main():
+    print("")
+    print("\t\t###########################")
+    print("\t\t#### -- Yt2mp3 BETA -- ####")
+    print("\t\t###########################")
+    print("")
+    
+    flags = sys.argv[1:]
+    if not flags:
+        print("No Opts or Args")
+
     try:
-        flags = sys.argv[1:]
         opts, args = getopt.getopt(flags, "f:u")
     except getopt.GetoptError as err:
         print("Error")
@@ -117,6 +136,7 @@ def main():
         verbose = 1
 
     url = check_url(flags)
+
     if url:
         bash_call('youtube-dl -r 25.5M -f 22 -o "{}/%(title)s.%(ext)s" {}'.format(DOWNLOAD_PATH, url), verbose)
         file_path = get_path()
@@ -127,15 +147,16 @@ def main():
         song_tags = get_tags()
         print("\nSetting Song Tags")
         set_tags(song_tags, file_path, verbose)
+    
         print("\nSetting Album Art")
         set_art("Test.mp3", verbose)
 
-        for opt, arg in opts: # loop through opts and args
-            if opt == '-u':
-                bash_call(UPDATE_CMD)
-            if opt == '-f':
-                file_path = input("enter file path: ")
-                get_frame(file_path, verbose)
+    for opt, arg in opts: # loop through opts and args
+        if opt == '-u':
+            bash_call(UPDATE_CMD)
+        if opt == '-f':
+            file_path = input("enter file path: ")
+            get_frame(file_path, verbose)
 
         print("")
 
