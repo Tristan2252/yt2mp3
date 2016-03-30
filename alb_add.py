@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os.path as path
-import eyed3
+import eyeD3
 import sys
 
 """
@@ -14,7 +14,7 @@ def check_file(file_name):
     if path.isfile(file_name):
         return 0
     else:
-        print ("{} is not a file or was not found").format(file_name)
+        print "{} is not a file or was not found".format(file_name)
         return 1
 
 """
@@ -72,12 +72,12 @@ def main():
         art = parce_path(in_put)
     
     while ".mp3" not in filename:
-        print ("Song must be of format .jpg")
+        print "Song must be of format .jpg"
         in_put = raw_input("Enter a .mp3 file: ")
         filename = parce_path(in_put)
     
     while ".jpg" not in art: # if file not .jpg ask for .jpg
-        print ("Art must be of format .jpg")
+        print "Art must be of format .jpg"
         in_put = raw_input("Enter a .jpg file: ")
         art = parce_path(in_put)
 
@@ -86,7 +86,7 @@ def main():
     audiofile = eyed3.load(filename) # load image into eyed3
     audiofile.tag.images.set(3, imagedata, "image/jpeg", u" ")
     audiofile.tag.save()
-    print("\n\nAdded {} to {} as album conver!\n").format(art, filename)
+    print "\n\nAdded {} to {} as album conver!\n".format(art, filename)
 
 if __name__ == "__main__":
     main()

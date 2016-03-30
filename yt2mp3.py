@@ -14,16 +14,15 @@ def get_frame(vid_path, verbose, vid_time='00:00:10.000'):
     if not check_file(output_path):
         bash_call("rm {}".format(output_path), verbose)
 
-    command = "{} -i {} -ss {} -vframes 1 {}".format(FFMPEG_BIN, vid_path, vid_time, output_path)
+    command = '{} -i {} -ss {} -vframes 1 {}'.format(FFMPEG_BIN, vid_path, vid_time, output_path)
     bash_call(command, verbose)
 
 def get_path():
     proc = sp.Popen("ls " + DOWNLOAD_PATH, stdout=sp.PIPE, shell=True) # pipe stdout to proc
     grep_proc = sp.Popen("grep .mkv\|.mp4".split(), stdin=proc.stdout, stdout=sp.PIPE) # pipe proc.stdout to grep
     out = grep_proc.communicate()[0]
-    out = out.decode('ascii') # convert to sting
-    out = out.rstrip("\n") # remove newline
-    return "{}/{}".format(DOWNLOAD_PATH, out.replace(" ", "\ "))
+    #out = out.decode('ascii') # convert to sting
+    return "{}/{}".format(DOWNLOAD_PATH, parce_path(out))
 
 def get_tags():
     artist = input("Enter Artist: ")
@@ -47,14 +46,16 @@ def set_tags(tag_lst, file_path, verbose):
 
     bash_call(cmd, verbose)
 
-def set_art(file_path):
-    art_path = "{}/output.jpg".format(DOWNLOAD_PATH)
-    imagedata = open(art_path, "rb").read() # open image
+def set_art(file_path, verbose):
+    bash_call("alb_add {} {}/output.jpg".format(file_path, DOWNLOAD_PATH), verbose)
 
-    audiofile = eyed3.load(file_path) # load image into eyed3
-    audiofile.tag.images.set(3, imagedata, "image/jpeg", u" ")
-    audiofile.tag.save()
-    print("\n\nAdded {} to {} as album conver!\n").format(DOWNLOAD_PATH + "/output.jpg", file_path)
+def parce_path(string):
+    path = string.decode('ascii')
+    path = path.replace(" ", "\ ")
+    path = path.replace("(", "\(")
+    path = path.replace(")", "\)")
+    path = path.rstrip("\n") # remove newline
+    return path
 
 def bash_call(cmd, verbose):
     if verbose:
@@ -126,7 +127,7 @@ def main():
         print("\nSetting Song Tags")
         set_tags(song_tags, file_path, verbose)
         print("\nSetting Album Art")
-        set_art("Test.mp3")
+        set_art("Test.mp3", verbose)
 
         for opt, arg in opts: # loop through opts and args
             if opt == '-u':
@@ -138,5 +139,5 @@ def main():
         print("")
 
 if __name__ == "__main__":
-        set_art("Test.mp3")
+    main()
     
