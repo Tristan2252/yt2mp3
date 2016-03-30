@@ -81,6 +81,7 @@ def status(p):
             break
         print('.', end="", flush=True) # print status
         time.sleep(1)
+    print("") # extra print line becase of no \n after previous print
 
 # use os.path to check if file exists or not
 def check_file(path):
