@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys, getopt
 import subprocess as sp
 import time
@@ -16,24 +17,24 @@ incorrect on has changed
 UPDATE_CMD = 'sudo curl https://yt-dl.org/downloads/2016.03.06/youtube-dl -o /usr/local/bin/youtube-dl; sudo chmod a+rx /usr/local/bin/youtube-dl'
 
 """ffmpeg binary uses to call ffmpeg when bash string command is called"""
-FFMPEG_BIN ='ffmpeg'
+FFMPEG_BIN ='ffmpeg -loglevel panic -nostats'
 
 
-def yt2mp3(url):
+def yt2mp3(url, ftime):
 
         bash_call('youtube-dl -r 25.5M -f 22 -o "{}/%(title)s.%(ext)s" {}'.format(DOWNLOAD_PATH, url))
         file_path = get_path()
 
-        print("\nGetting Album Art")
-        get_frame(file_path)
-
         song_tags = get_tags()
-        new_file_name = song_tags["song"] + ".mp3"
+        song_path = song_tags["song"] + ".mp3"
         print("\nSetting Song Tags")
         set_tags(song_tags, file_path)
 
         print("\nSetting Album Art")
-        set_art(new_file_name)
+        while set_art(song_path, file_path, ftime): # loop until user input is correct
+            pass
+
+        clean_up() # del tmp files
 
 
 """
@@ -43,7 +44,7 @@ vid_path: The found path of the downloaded video, see get_path() for more detail
 vid_time: The time ffmpeg is to grab a video frame from
 return: None
 """
-def get_frame(vid_path, vid_time='00:00:10.000'):
+def get_frame(vid_path, vid_time):
     output_path = "{}/output.jpg".format(DOWNLOAD_PATH)
 
     if not check_file(output_path):
@@ -82,7 +83,7 @@ def get_tags():
     genre = input("Enter Genre: ")
 
     tags = {"artist": artist, "song": song, "album": album, "alb_artist": alb_artist, "genre": genre}
-    for key in tags:
+    for key in tags: # make all tags bash compatable
         tags[key] = parce_str(tags[key])
 
     return tags
@@ -96,15 +97,26 @@ file_path: the absolute path of the files to set metadata for
 return: none
 """
 def set_tags(tag_lst, file_path):
-    cmd = "ffmpeg -i {} -metadata title={} -metadata artist={} -metadata album_artist={}"\
-            " -metadata album={} -metadata genre={} -b:a 192K -vn {}.mp3".format(file_path,
+    
+    while not check_file(tag_lst["song"] + ".mp3"): # if file exists then prompt user
+        opt = input("{}.mp3 exists, Would you like to overwrite it? Y/N: ").format(tag_lst["song"])
+        if opt == "Y":
+            break
+        elif opt == "N":
+            print("Renaming file to: {}2.mp3").format(tag_lst["song"])
+            tag_lst["song"] = tag_lst["song"] + "2"
+        else:
+            print("ERROR: Incorrect Input")
+
+    cmd = "{} -i {} -metadata title={} -metadata artist={} -metadata album_artist={}"\
+            " -metadata album={} -metadata genre={} -b:a 192K -vn {}.mp3".format(FFMPEG_BIN, file_path,
                     tag_lst["song"],
                     tag_lst["artist"],
                     tag_lst["alb_artist"],
                     tag_lst["album"],
                     tag_lst["genre"],
                     tag_lst["song"])
-
+        
     bash_call(cmd)
 
 
@@ -114,22 +126,33 @@ enters the custom option then they will asked to enter the absolute path of the 
 the users input is then parced for readability and then passes via bash to alb_add.py. If user
 enters video option the path of output.jpg crated by get_frame() is passed to alb_add via bash.
 NOTE: The paths are passed to alb_add.py via bash because alb_add.py runs on python2.7 becasue of eyed3
-file_path: path of the file to add album art to
+song_path: path of the file to add album art to
+vid_path: the path of the video to get the art from
+frame_time: the time of the video to get art from
 return: none
 """
-def set_art(file_path):
+def set_art(song_path, vid_path, frame_time):
+    verbose = 0 # to show output of alb_add.py
+
     print("Use custom album art or keep videos?")
     print("\tV: keep video album art")
     print("\tC: use custom")
     opt = input("Option: ")
 
     if opt == 'V' or opt.lower() == 'v':
-        bash_call("alb_add {} {}/output.jpg".format(file_path, DOWNLOAD_PATH))
+        print("\nGetting Album Art")
+        get_frame(vid_path, frame_time)
+        bash_call("alb_add {} {}/output.jpg".format(song_path, DOWNLOAD_PATH))
 
-    else:
+    elif opt == 'C' or opt.lower() == 'c':
         art_path = input("Enter path of custom album art: ")
         art_path = parce_str(art_path)
-        bash_call("alb_add {} {}".format(file_path, art_path))
+        bash_call("alb_add {} {}".format(song_path, art_path))
+
+    else:
+        return 2 # if user input is not right dont return success '0'
+
+    return 0
 
 
 """
@@ -156,7 +179,7 @@ def bash_call(cmd):
             sys.exit(2)
     else:
         try:
-            proc = sp.Popen(cmd, stdout=sp.PIPE, shell=True, stderr=sp.PIPE)
+            proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
             status(proc)
             proc.wait() # wait just in case
         except KeyboardInterrupt:
@@ -164,9 +187,8 @@ def bash_call(cmd):
             sys.exit(2)
 
 def status(p):
-    while True:
-        if p.poll() != None:
-            break
+    while p.poll() == None:
+#        p.communicate()[0]
         print('.', end="", flush=True) # print status
         time.sleep(1)
     print("") # extra print line becase of no \n after previous print
@@ -199,6 +221,16 @@ def check_url(strings):
     return False
 
 
+def get_arg(opt, flags):
+    
+    for i, flag in enumerate(flags):
+        if flag == opt:
+            return flags[i+1]
+
+
+def clean_up(file_path):
+    bash_call("rm -v {}/{} {}/output.jpg".format(DOWNLOAD_PATH, file_path, DOWNLOAD_PATH))
+
 def main():
     print("")
     print("\t\t###########################")
@@ -209,30 +241,30 @@ def main():
     flags = sys.argv[1:]
     if not flags:
         flags = [input("Enter video url: ")] # flags needs to be a list to be read correctly
-    
+   
+    ############### PROGRAM DEFAULT VALUES  ##############
     global verbose # global so that it doesnt need to be passed to every function
+    verbose = 0
+    time = '00:00:10.000'
+   
+    ############### TEST FOR FLAGS #######################
+    if '-u' in flags:
+        bash_call(UPDATE_CMD)
+        return # dont run program after update
     if '-v' in flags:
         verbose = 1
-    else:
-        verbose = 0
-
+    if '-t' in flags:
+        time = get_arg('-t', flags)
+    if '-c' in flags:
+        clean_up() 
 
     link = check_url(flags)
 
-    if link:
-        yt2mp3(link)
-    else:
+    if not link:
         while link == 0: # until url is correct ask user
             link = input("Enter video url: ")
-        yt2mp3(link)
-
-
-    for opt in flags: # loop through opts and args
-        if opt == '-u':
-            bash_call(UPDATE_CMD)
-        if opt == '-f':
-            file_path = input("enter file path: ")
-            get_frame(file_path)
+    
+    yt2mp3(link, time)
 
 if __name__ == "__main__":
     main()
