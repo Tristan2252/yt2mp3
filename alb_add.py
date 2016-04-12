@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
 import os.path as path
-import eyeD3
 import sys
+
+try: 
+    import eyeD3
+except ImportError:
+    import eyed3
+
 
 """
 Funcint uses os.path to check if file exists
@@ -21,11 +26,11 @@ def check_file(file_name):
 Help page function, prings help page for user to see
 correct input syntax
 """
-#def help_page():
-#    print "\nAlb_add\n"
-#    print "To add album art to .mp3 use:"
-#    print "\t$ alb_add /path/to/song.mp3 /path/to/art.jpg\n"
-#
+def help_page():
+    print "\nAlb_add\n"
+    print "To add album art to .mp3 use:"
+    print "\t$ alb_add /path/to/song.mp3 /path/to/art.jpg\n"
+
 """
 Parces path inputed by user and converts it into an acceptable
 path for python to use
