@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import sys, getopt
 import subprocess as sp
+import string
 import time
 import os
 
 
 """
-Get a frame from downloaded video to add as the album art. Function calles ffmpeg bash command
+Get a frame from downloaded video to add as the album art. Function calls ffmpeg bash command
 with flags to extract a picture, output.jpg, from video and store in the temp file.
 vid_path: The found path of the downloaded video, see get_path() for more details
 vid_time: The time ffmpeg is to grab a video frame from
@@ -27,7 +28,7 @@ def get_frame(vid_path, vid_time):
 Finds the absolute path of the downloaded file in the temp folder using ls and piping output to
 grep to search for an mkv or mp4 file. The stdout of grep is then piped to head to make sure to
 get the latest file in the temp folder. After file is found the output is captured by python and
-set to out var to them be processed into a readable string using parce_str function.(see parce_str) for info
+set to out var to them be processed into a readable string using parse_str function.(see parse_str) for info
 return: absolute path string of downloaded file
 """
 def get_path(path):
@@ -35,8 +36,8 @@ def get_path(path):
     grep_proc = sp.Popen("grep '.mkv\|.mp4\|.mp3'", stdin=proc.stdout, stdout=sp.PIPE, shell=True) # grep for video files
     head_proc = sp.Popen("head -1", stdin=grep_proc.stdout, stdout=sp.PIPE, shell=True) # narrow down to leatest file
     out = head_proc.communicate()[0]
-    out = out.decode('ascii') # convert to sting
-    return "{}/{}".format(path, parce_str(out)) # parce path before returning
+    out = out.decode('utf8', errors='ignore') # convert to sting
+    return "{}/{}".format(path, parse_str(out)) # parse path before returning
 
 
 """
@@ -48,7 +49,7 @@ def get_curPath():
     proc = sp.Popen("pwd", stdout=sp.PIPE, shell=True)
     out = proc.communicate()[0]
     out = out.decode('ascii')
-    return parce_str(out)
+    return parse_str(out)
 
 
 """
@@ -64,14 +65,14 @@ def get_tags():
 
     tags = {"artist": artist, "song": song, "album": album, "alb_artist": alb_artist, "genre": genre}
     for key in tags: # make all tags bash compatable
-        tags[key] = parce_str(tags[key])
+        tags[key] = parse_str(tags[key])
 
     return tags
 
 
 """
 Builds bash command to call ffmpeg and set metadata of the file. The tag dictionary is used to
-imput user entered data into the command string before it is called using bash_call() to run the command
+input user entered data into the command string before it is called using bash_call() to run the command
 tag_lst: a dictionary of the user entered tags
 file_path: the absolute path of the files to set metadata for
 return: none
@@ -105,11 +106,11 @@ def set_tags(tag_lst, file_path):
 
 
 """
-Prompt user for option to use a custom album art or on grabed from get_frame(). If the user
+Prompt user for option to use a custom album art or one from get_frame(). If the user
 enters the custom option then they will asked to enter the absolute path of the custom album art.
-the users input is then parced for readability and then passes via bash to alb_add.py. If user
+The users input is then parsed for readability and then passes via bash to alb_add.py. If user
 enters video option the path of output.jpg crated by get_frame() is passed to alb_add via bash.
-NOTE: The paths are passed to alb_add.py via bash because alb_add.py runs on python2.7 becasue of eyed3
+NOTE: The paths are passed to alb_add.py via bash because alb_add.py runs on python2.7 because of eyed3
 song_path: path of the file to add album art to
 vid_path: the path of the video to get the art from
 frame_time: the time of the video to get art from
@@ -130,7 +131,7 @@ def set_art(song_path, vid_path, frame_time):
 
     elif opt == 'C' or opt.lower() == 'c':
         art_path = input("Enter path of custom album art: ")
-        art_path = parce_str(art_path)
+        art_path = parse_str(art_path)
         sp.Popen("alb_add {} {}".format(song_path, art_path), shell=True)
         proc.wait()
 
@@ -143,12 +144,12 @@ def set_art(song_path, vid_path, frame_time):
 
 
 """
-Parces string to be readable by bash. Uses replace to switch patters such as ' ' with
+Parses string to be readable by bash. Uses replace to switch patters such as ' ' with
 bash space '\ '. This is done to enable path to be read correctly by bash when it is
 passed to bash_call() to call the command string
-string: the string to parce
+string: the string to parse
 """
-def parce_str(string):
+def parse_str(string):
     path = string.replace(" ", "\ ")
     path = path.replace("(", "\(")
     path = path.replace(")", "\)")
@@ -157,7 +158,7 @@ def parce_str(string):
 
 
 """
-Calls command using subprocess. Also reads verbose flag and proeformes wait function.If verbose
+Calls command using subprocess. Also reads verbose flag and preforms wait function. If verbose
 flag is set then the command is ran without piping stdout so that user can view output.
 cmd: a string of the command to execute with subprocess
 """
@@ -181,10 +182,10 @@ def bash_call(cmd):
 
 
 """
-Prints status indecator for user to view while subprocess is running bash command
+Prints status indicator for user to view while subprocess is running bash command
 While poll == none or while the proc is stil running print '.' to screen and then
-sleep, or wait, one second, then repoll proc
-p: the subprocess command class to print indecator for
+sleep, or wait, one second, then re-poll proc
+p: the subprocess command class to print indicator for
 """
 def status(p):
     while p.poll() == None:
@@ -196,7 +197,7 @@ def status(p):
 """
 Check if path exists as a file or a dir, if so return 0 for success, if neither
 file of dir then return 1 or fail
-return: True or Fals if file or dir exists
+return: True or False if file or dir exists
 """
 def check_file(path):
     if os.path.isfile(path):
@@ -211,7 +212,7 @@ def check_file(path):
 Check list of strings for proper url format for sending to youtube-dl.
 If the string is less then the len of the youtube url then it is not valid and
 is passed, if it isn't then test if the url contains the basic youtube url.
-If all tests are true return string eles return false. Program takse in a list
+If all tests are true return string eles return false. Program takes in a list
 of strings because the function is used to pick out the url within the list of
 opts and args passed to yt2mp3
 strings: list of strings to search
@@ -266,7 +267,11 @@ def clean_up(file_path):
 
 
 """
-
+Call mv command to move file to new dest. the -i flag is used to prompt the user
+if there is a replica of the file being moved
+file_path: the path of the file to move
+dest_location: the location to move the file to
+return 0 if success and 2 if not
 """
 def mv_file(file_path, dest_location):
     print("Current location of song is " + file_path)
@@ -279,6 +284,20 @@ def mv_file(file_path, dest_location):
         return 0
     else:
         return 2
+
+
+def usage():
+    print("")
+    print("yt2mp3 [YOUTUBE URL] [OPTIONS]")
+    print("")
+    print("Options:")
+    print("[-u]                 run update for yt2mp3 and youtube-dl")
+    print("[-v]                 run yt2mp3 in verbose mode (display all output)")
+    print("[-t] [00:00:00.000]  set time to get album art from")
+    print("[-r]                 remove all temp files")
+    print("[-k]                 keep all temp files")
+    print("[-h]                 print help screen")
+    print("")
 
 
 def main():
@@ -346,17 +365,23 @@ def main():
         verbose = 1
     if '-t' in flags:
         time = get_arg('-t', flags)
-    if '-c' in flags:
+    if '-r' in flags:
         clean_up(DOWNLOAD_PATH)
+        print("\n Temp Files removed\n")
+        return # dont run program after update
     if '-k' in flags:
         keep_files = 1
+    if '-h' in flags:
+        usage()
+        return # dont run program after update
+
 
     link = check_url(flags)
     while link == 0: # until url is correct ask user
         link = input("Enter video url: ")
 
     ############### RUN COMMANDS #######################
-    bash_call('youtube-dl -r 25.5M -f 22 -o "{}/%(title)s.%(ext)s" {}'.format(DOWNLOAD_PATH, link))
+    bash_call('youtube-dl -r 25.5M -f 22 -o "{}/DLSONG.%(ext)s" {}'.format(DOWNLOAD_PATH, link))
     file_path = get_path(DOWNLOAD_PATH)
 
     song_tags = get_tags()
@@ -377,5 +402,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: #accept ctl-c by user
         print("\nProgram Stopped: BY USER")
