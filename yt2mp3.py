@@ -57,17 +57,25 @@ Prompts user for metadata and stores values in a dictionary for easy passing fro
 return: a dictionary of the tags and their values
 """
 def get_tags():
-    artist = input("Enter Artist: ")
-    song = input("Enter Song Name: ")
-    album = input("Enter Album Name: ")
-    alb_artist = input("Enter Album Artist: ")
-    genre = input("Enter Genre: ")
+    artist = get_input("Enter Artist: ")
+    song = get_input("Enter Song Name: ")
+    album = get_input("Enter Album Name: ")
+    alb_artist = get_input("Enter Album Artist: ")
+    genre = get_input("Enter Genre: ")
 
     tags = {"artist": artist, "song": song, "album": album, "alb_artist": alb_artist, "genre": genre}
     for key in tags: # make all tags bash compatable
         tags[key] = parse_str(tags[key])
 
     return tags
+
+def get_input(prompt):
+    string = input(prompt)
+    
+    if string == "\exit":
+        sys.exit()
+
+    return string
 
 
 """
@@ -82,7 +90,7 @@ def set_tags(tag_lst, file_path):
     song_path = tag_lst["song"] + ".mp3"
 
     while not check_file(song_path): # if file exists in cur dir then prompt user
-        opt = input(song_path + " exists, Would you like to overwrite it? Y/N: ")
+        opt = get_input(song_path + " exists, Would you like to overwrite it? Y/N: ")
         if opt == 'Y' or opt.lower() == 'y':
             clean_up(song_path)
             break # break so that check_file doesnt run a second time
@@ -121,7 +129,7 @@ def set_art(song_path, vid_path, frame_time):
     print("Use custom album art or keep videos?")
     print("\tV: keep video album art")
     print("\tC: use custom")
-    opt = input("Option: ")
+    opt = get_input("Option: ")
 
     if opt == 'V' or opt.lower() == 'v':
         print("\nGetting Album Art")
@@ -130,7 +138,7 @@ def set_art(song_path, vid_path, frame_time):
         proc.wait()
 
     elif opt == 'C' or opt.lower() == 'c':
-        art_path = input("Enter path of custom album art: ")
+        art_path = get_input("Enter path of custom album art: ")
         art_path = parse_str(art_path)
         sp.Popen("alb_add {} {}".format(song_path, art_path), shell=True)
         proc.wait()
@@ -275,7 +283,7 @@ return 0 if success and 2 if not
 """
 def mv_file(file_path, dest_location):
     print("Current location of song is " + file_path)
-    opt = input("Would you like to move file to music folder? Y/N: ")
+    opt = get_input("Would you like to move file to music folder? Y/N: ")
     if opt == 'Y' or opt.lower() == 'y':
         proc = sp.Popen("mv -i {} {}".format(file_path, dest_location), shell=True)
         proc.wait()
@@ -309,7 +317,7 @@ def main():
 
     flags = sys.argv[1:] # get list of opts and args
     if not flags:
-        flags = [input("Enter video url: ")] # flags needs to be a list to be read correctly
+        flags = [get_input("Enter video url: ")] # flags needs to be a list to be read correctly
 
     global verbose # global so that it doesnt need to be passed to every function
     global DOWNLOAD_PATH
@@ -378,7 +386,7 @@ def main():
 
     link = check_url(flags)
     while link == 0: # until url is correct ask user
-        link = input("Enter video url: ")
+        link = get_input("Enter video url: ")
 
     ############### RUN COMMANDS #######################
     bash_call('youtube-dl -r 25.5M -f 22 -o "{}/DLSONG.%(ext)s" {}'.format(DOWNLOAD_PATH, link))
