@@ -51,18 +51,28 @@ install ()
             brew install ffmpeg;;
         $YOUTUBE_DL)
             printf "\n###### INSTALLING YOUTUBE ######\n\n"
-            sudo curl https://yt-dl.org/downloads/2016.03.06/youtube-dl -o /usr/local/bin/youtube-dl; sudo chmod a+rx /usr/local/bin/youtube-dl;;
+            sudo curl -L https://yt-dl.org/downloads/2016.06.23/youtube-dl -o /usr/local/bin/youtube-dl
+            sudo chmod a+rx /usr/local/bin/youtube-dl;;
         $BIN_DIR/alb_add)
             printf "\n###### INSTALLING ALB_ADD ######\n\n"
-            sudo cp alb_add.py $INSTALL_DIR
+            sudo cp $(dirname $0)/alb_add.py $INSTALL_DIR
             sudo ln -sF $INSTALL_DIR/alb_add.py $BIN_DIR/alb_add
-            sudo chmod +x $BIN_DIR/alb_add;;
+            sudo chmod +x $1;;
         $BIN_DIR/yt2mp3)
             printf "\n###### INSTALLING YT2MP3 ######\n\n"
-            sudo cp yt2mp3.py $INSTALL_DIR
+            sudo cp $(dirname $0)/yt2mp3.py $INSTALL_DIR
             sudo ln -sF $INSTALL_DIR/yt2mp3.py $BIN_DIR/yt2mp3
-            sudo chmod +x $BIN_DIR/yt2mp3;;
+            sudo chmod +x $1;;
     esac
+    check_error $1 # check if installed correctly
+}
+
+check_error ()
+{
+    if [ ! -e $1 ]; then
+            printf "Unable to install $1, check installation for errors\n\n"
+            exit 0
+    fi
 }
 
 check_file ()

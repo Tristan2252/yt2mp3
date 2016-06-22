@@ -57,15 +57,19 @@ Prompts user for metadata and stores values in a dictionary for easy passing fro
 return: a dictionary of the tags and their values
 """
 def get_tags():
-    artist = get_input("Enter Artist: ")
-    song = get_input("Enter Song Name: ")
-    album = get_input("Enter Album Name: ")
-    alb_artist = get_input("Enter Album Artist: ")
-    genre = get_input("Enter Genre: ")
+    tags = {"artist": 1, "song": 2, "album": 3, "alb_artist": 4, "genre": 5}
+    sort_tags = sorted(tags, key=lambda key: tags[key]) # sort dict by kay values
+    i = 0 
 
-    tags = {"artist": artist, "song": song, "album": album, "alb_artist": alb_artist, "genre": genre}
-    for key in tags: # make all tags bash compatable
-        tags[key] = parse_str(tags[key])
+    while i < len(tags):
+        print("")
+        for key in sort_tags: # make all tags bash compatable
+            tag = get_input("Enter {}: ".format(key))
+            if tag == '\\back':
+                i = 0
+                break
+            tags[key] = parse_str(tag)
+            i = i + 1
 
     return tags
 
@@ -229,8 +233,9 @@ return: url if true and false otherwise
 def check_url(strings):
     url_str = ""
     for string in strings:
-
         if len(string) < len("http://www.youtube.com"): # if less then len of a link the not a link
+            pass
+        elif "http" not in string: # if http is not in string its not a link
             pass
         else:
             for letter in string:
@@ -242,6 +247,8 @@ def check_url(strings):
                         print("Downloading from: " + string)
                         return string
             print("URL ERROR: url must be a valid youtube url")
+    
+    print("URL ERROR: no or inproper link found, use -h for help")
 
     return False
 
@@ -282,6 +289,13 @@ dest_location: the location to move the file to
 return 0 if success and 2 if not
 """
 def mv_file(file_path, dest_location):
+    
+    # if something other than default then bypas prompt
+    if dest_location != "~/Music":
+        proc = sp.Popen("mv -i {} {}".format(file_path, dest_location), shell=True)
+        proc.wait()
+        return 0
+
     print("Current location of song is " + file_path)
     opt = get_input("Would you like to move file to music folder? Y/N: ")
     if opt == 'Y' or opt.lower() == 'y':
@@ -305,6 +319,11 @@ def usage():
     print("[-r]                 remove all temp files")
     print("[-k]                 keep all temp files")
     print("[-h]                 print help screen")
+    print("[-d] [PATH]          set a custom download path")
+    print("")
+    print("In App Commands:")
+    print("[\exit]              exit program at any input")
+    print("[\\back]              use to redo tags")
     print("")
 
 
@@ -350,11 +369,6 @@ def main():
     """
     DOWNLOAD_PATH = "/tmp/yt2mp3"
     """
-    Update command string for youtube-dl, should NOT be changed unless the update command
-    incorrect on has changed
-    """
-    UPDATE_CMD = 'sudo curl https://yt-dl.org/downloads/2016.03.06/youtube-dl -o /usr/local/bin/youtube-dl; sudo chmod a+rx /usr/local/bin/youtube-dl'
-    """
     ffmpeg binary uses to call ffmpeg when bash string command is called
     """
     FFMPEG_BIN ='ffmpeg -loglevel panic -nostats'
@@ -367,7 +381,8 @@ def main():
 
     if '-u' in flags:
         verbose = 1
-        bash_call(UPDATE_CMD)
+        bash_call("sudo rm /opt/yt2mp3/*")
+        bash_call("git clone https://github.com/Tristan2252/yt2mp3; yt2mp3/install.sh; sudo rm -r yt2mp3/")
         return # dont run program after update
     if '-v' in flags:
         verbose = 1
@@ -382,7 +397,8 @@ def main():
     if '-h' in flags:
         usage()
         return # dont run program after update
-
+    if '-d' in flags:
+        music_folder = get_arg('-d', flags)
 
     link = check_url(flags)
     while link == 0: # until url is correct ask user
