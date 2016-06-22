@@ -54,12 +54,12 @@ install ()
             sudo curl https://yt-dl.org/downloads/2016.03.06/youtube-dl -o /usr/local/bin/youtube-dl; sudo chmod a+rx /usr/local/bin/youtube-dl;;
         $BIN_DIR/alb_add)
             printf "\n###### INSTALLING ALB_ADD ######\n\n"
-            sudo mv alb_add.py $INSTALL_DIR
+            sudo cp alb_add.py $INSTALL_DIR
             sudo ln -s $INSTALL_DIR/alb_add.py $BIN_DIR/alb_add
             sudo chmod +x $BIN_DIR/alb_add;;
         $BIN_DIR/yt2mp3)
             printf "\n###### INSTALLING YT2MP3 ######\n\n"
-            sudo mv yt2mp3.py $INSTALL_DIR
+            sudo cp yt2mp3.py $INSTALL_DIR
             sudo ln -s $INSTALL_DIR/yt2mp3.py $BIN_DIR/yt2mp3
             sudo chmod +x $BIN_DIR/yt2mp3;;
     esac
