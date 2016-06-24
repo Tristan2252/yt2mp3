@@ -2,7 +2,7 @@
 
 ###About  
 yt2mp3 is a wrapper for youtube-dl and ffmpeg that allows users to download and convert youtube videos to
-mp3's with ease. The program consists of a shell script witch prompts the user for needed input and executes 
+mp3's with ease. The program consists of a python script witch prompts the user for needed input and executes 
 the commands needed to achieve proper video download and mp3 conversion.
 
 ###Features
@@ -13,28 +13,31 @@ the commands needed to achieve proper video download and mp3 conversion.
 
 ###Usage
 ```
-Download and convert from Youtube:
-    yt2mp3 https://youtube.com/example
+    $ yt2mp3 [YOUTUBE URL] [OPTIONS]
+   
+    Options:
+    [-u]                 run update for yt2mp3 and youtube-dl
+    [-v]                 run yt2mp3 in verbose mode (display all output)
+    [-t] [00:00:00.000]  set time to get album art from
+    [-r]                 remove all temp files
+    [-k]                 keep all temp files
+    [-h]                 print help screen
+    [-d] [PATH]          set a custom download path
 
-Optional:
-    -r   Remove temp file located in /tmp/yt2mp3
-    -h   Help page for yt2mp3
-    -u   Update current yt2mp3 program
-    -t [00:00]   Change time in minutes that thumbnail is extracted from video
-
-In Program
-Adding Tags
-    /back  use to redo the previously entered tags
+    In App Commands:
+    [\exit]              exit program at any input
+    [\back]              use to redo tags
 ```
 
 ###Installing
-Installing yt2mp3 is very easy, simply run `./install.sh` within the cloned folder.  
+Instling yt2mp3 is very easy, simply run `./install.sh` within the cloned git folder.  
 After installing, yt2mp3 can be accessed anywhere from the terminal, installation files
 are no longer needed unless you want to run yt2mp3 as a stand alone program.
 
 #####Mac OS X Installation Dependencies
 - Homebrew _(needed to install other dependencies)_
-- eyeD3  _(installed from pip)_
+- eyeD3  _(installed with pip)_
+- python3
 - python2.7
 - youtube-dl
 - ffmpeg  
@@ -43,6 +46,7 @@ are no longer needed unless you want to run yt2mp3 as a stand alone program.
 #####Linux Installation Dependencies
 - eyeD3  _(installed from pip)_ 
 - python3.4  _(if not installed)_
+- python2.7 
 - youtube-dl
 - ffmpeg
 - pip3

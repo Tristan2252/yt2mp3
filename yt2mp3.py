@@ -310,7 +310,7 @@ def mv_file(file_path, dest_location):
 
 def usage():
     print("")
-    print("yt2mp3 [YOUTUBE URL] [OPTIONS]")
+    print("$ yt2mp3 [YOUTUBE URL] [OPTIONS]")
     print("")
     print("Options:")
     print("[-u]                 run update for yt2mp3 and youtube-dl")
