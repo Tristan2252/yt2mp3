@@ -77,19 +77,11 @@ check_error ()
 
 check_file ()
 {
-    flag=1
-    while [ $flag ]; do
-        if [ -e $1 ]; then
-            printf "Installed... \t$1\n"
-            break
-        elif [ $flag -eq 2 ]; then
-            printf "\n Unable to install $1, check installation for errors\n\n"
-            exit 0
-        else
-            ((flag++))
-            install $1
-        fi
-    done
+    if [ -e $1 ]; then
+        printf "Installed... \t$1\n"
+    else
+        install $1
+    fi
 }
 
 
