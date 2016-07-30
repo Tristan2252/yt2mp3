@@ -144,7 +144,7 @@ def set_art(song_path, vid_path, frame_time):
     elif opt == 'C' or opt.lower() == 'c':
         art_path = get_input("Enter path of custom album art: ")
         art_path = parse_str(art_path)
-        sp.Popen("alb_add {} {}".format(song_path, art_path), shell=True)
+        proc = sp.Popen("alb_add {} {}".format(song_path, art_path), shell=True)
         proc.wait()
 
     else:

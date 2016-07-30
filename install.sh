@@ -51,7 +51,7 @@ install ()
             brew install ffmpeg;;
         $YOUTUBE_DL)
             printf "\n###### INSTALLING YOUTUBE ######\n\n"
-            sudo curl -L https://yt-dl.org/downloads/2016.06.23/youtube-dl -o /usr/local/bin/youtube-dl
+            sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
             sudo chmod a+rx /usr/local/bin/youtube-dl;;
         $BIN_DIR/alb_add)
             printf "\n###### INSTALLING ALB_ADD ######\n\n"
