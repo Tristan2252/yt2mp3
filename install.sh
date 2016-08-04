@@ -30,7 +30,7 @@ install ()
             sudo pip install eyeD3;;
         $EYED3_MOS)
             printf "\n###### INSTALLING EYED3 ######\n\n"
-            pip2.7 install eyed3;;
+            sudo pip2.7 install eyed3;;
         $PYTHON_LIN)
             printf "\n###### INSTALLING PYTHON ######\n\n"
             sudo apt-get install python -y;;
