@@ -32,8 +32,11 @@ install ()
             printf "\n###### INSTALLING EYED3 ######\n\n"
             sudo pip2.7 install eyed3;;
         $PYTHON_LIN)
-            printf "\n###### INSTALLING PYTHON ######\n\n"
+            printf "\n###### installing python ######\n\n"
             sudo apt-get install python -y;;
+        $PIP_LIN)
+            printf "\n###### installing python ######\n\n"
+            sudo apt-get install python-pip -y;;
         $PYTHON_MOS)
             printf "\n###### INSTALLING PYTHON ######\n\n"
             brew install python;;
@@ -108,6 +111,7 @@ linux_install ()
     check_file $EYED3_LIN
     check_file $FFMPEG_LIN
     check_file $YOUTUBE_DL
+    check_file $PIP_LIN
 
     install $BIN_DIR/alb_add
     check_file $BIN_DIR/alb_add
