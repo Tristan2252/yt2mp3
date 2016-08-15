@@ -48,6 +48,8 @@ install ()
             brew install python3;;
         $FFMPEG_LIN)
             printf "\n###### INSTALLING FFMPEG ######\n\n"
+            sudo add-apt-repository ppa:mc3man/trusty-media -y
+            sudo apt-get update
             sudo apt-get install ffmpeg -y;;
         $FFMPEG_MOS)
             printf "\n###### INSTALLING FFMPEG ######\n\n"
