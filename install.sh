@@ -36,7 +36,7 @@ install ()
             sudo apt-get install python -y;;
         $PIP_LIN)
             printf "\n###### installing python ######\n\n"
-            sudo apt-get install python3-pip -y;;
+            sudo apt-get install python-pip -y;;
         $PYTHON_MOS)
             printf "\n###### INSTALLING PYTHON ######\n\n"
             brew install python;;
