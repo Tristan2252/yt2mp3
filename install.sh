@@ -36,7 +36,7 @@ install ()
             sudo apt-get install python -y;;
         $PIP_LIN)
             printf "\n###### installing python ######\n\n"
-            sudo apt-get install python-pip -y;;
+            sudo apt-get install python3-pip -y;;
         $PYTHON_MOS)
             printf "\n###### INSTALLING PYTHON ######\n\n"
             brew install python;;
@@ -108,10 +108,10 @@ linux_install ()
 {
     check_file $PYTHON_LIN
     check_file $PYTHON3_LIN
+    check_file $PIP_LIN
     check_file $EYED3_LIN
     check_file $FFMPEG_LIN
     check_file $YOUTUBE_DL
-    check_file $PIP_LIN
 
     install $BIN_DIR/alb_add
     check_file $BIN_DIR/alb_add
