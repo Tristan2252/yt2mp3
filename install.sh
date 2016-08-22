@@ -15,7 +15,7 @@ FFMPEG_MOS="/usr/local/bin/ffmpeg"
 # LINUX test dir's
 EYED3_LIN="/usr/local/lib/python2.7/dist-packages/eyed3"
 FFMPEG_LIN="/usr/bin/ffmpeg"
-PYTHON3_LIN="/usr/bin/python3.4"
+PYTHON3_LIN="/usr/bin/python3"
 PYTHON_LIN="/usr/bin/python2.7"
 PIP_LIN="/usr/bin/pip"
 
