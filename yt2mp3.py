@@ -162,10 +162,21 @@ passed to bash_call() to call the command string
 string: the string to parse
 """
 def parse_str(string):
-    path = string.replace(" ", "\ ")
-    path = path.replace("(", "\(")
-    path = path.replace(")", "\)")
+    path = string
+    chars = {" ": "\ ",
+            "(": "\(",
+            ")": "\(",
+            "'": "\\'"}
+
+    for key in chars:
+        path = path.replace(key, chars[key])
+
     path = path.rstrip("\n") # remove newline
+
+#    path = string.replace(" ", "\ ")
+#    path = path.replace("(", "\(")
+#    path = path.replace(")", "\)")
+#    path = path.rstrip("\n") # remove newline
     return path
 
 
@@ -405,7 +416,7 @@ def main():
         link = get_input("Enter video url: ")
 
     ############### RUN COMMANDS #######################
-    bash_call('youtube-dl -r 25.5M -f 22 -o "{}/DLSONG.%(ext)s" {}'.format(DOWNLOAD_PATH, link))
+    bash_call('youtube-dl -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'.format(DOWNLOAD_PATH, link))
     file_path = get_path(DOWNLOAD_PATH)
 
     song_tags = get_tags()
