@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 import os.path as path
 import sys
@@ -19,7 +19,7 @@ def check_file(file_name):
     if path.isfile(file_name):
         return 0
     else:
-        print "{} is not a file or was not found".format(file_name)
+        print(file_name) #+ "{} is not a file or was not found" #.format(file_name)
         return 1
 
 """
@@ -27,9 +27,9 @@ Help page function, prings help page for user to see
 correct input syntax
 """
 def help_page():
-    print "\nAlb_add\n"
-    print "To add album art to .mp3 use:"
-    print "\t$ alb_add /path/to/song.mp3 /path/to/art.jpg\n"
+    print("\nAlb_add\n")
+    print("To add album art to .mp3 use:")
+    print("\t$ alb_add /path/to/song.mp3 /path/to/art.jpg\n")
 
 """
 Parces path inputed by user and converts it into an acceptable
@@ -77,12 +77,12 @@ def main():
         art = parce_path(in_put)
     
     while ".mp3" not in filename:
-        print "Song must be of format .jpg"
+        print("Song must be of format .jpg")
         in_put = raw_input("Enter a .mp3 file: ")
         filename = parce_path(in_put)
     
     while ".jpg" not in art: # if file not .jpg ask for .jpg
-        print "Art must be of format .jpg"
+        print("Art must be of format .jpg")
         in_put = raw_input("Enter a .jpg file: ")
         art = parce_path(in_put)
 
@@ -91,7 +91,7 @@ def main():
     audiofile = eyed3.load(filename) # load image into eyed3
     audiofile.tag.images.set(3, imagedata, "image/jpeg", u" ")
     audiofile.tag.save()
-    print "\n\nAdded {} to {} as album conver!\n".format(art, filename)
+    print("\n\nAdded {} to {} as album conver!\n".format(art, filename))
 
 if __name__ == "__main__":
     main()
