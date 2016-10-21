@@ -48,7 +48,12 @@ install ()
             brew install python3;;
         $FFMPEG_LIN)
             printf "\n###### INSTALLING FFMPEG ######\n\n"
-            sudo add-apt-repository ppa:mc3man/trusty-media -y
+            
+            # add repo for trusty
+            if [ $(lsb_release -c | awk {'print $2'}) == "trusty" ]; then
+                sudo add-apt-repository ppa:mc3man/trusty-media -y
+            fi
+
             sudo apt-get update
             sudo apt-get install ffmpeg -y;;
         $FFMPEG_MOS)
@@ -59,15 +64,23 @@ install ()
             sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
             sudo chmod a+rx /usr/local/bin/youtube-dl;;
         $BIN_DIR/alb_add)
-            printf "\n###### INSTALLING ALB_ADD ######\n\n"
-            sudo cp $(dirname $0)/alb_add.py $INSTALL_DIR
-            sudo ln -sF $INSTALL_DIR/alb_add.py $BIN_DIR/alb_add
-            sudo chmod +x $1;;
+            sudo cp $(dirname $0)/alb_add.py $INSTALL_DIR # always cp for updates to src
+
+            if [ ! -e $BIN_DIR/alb_add ]; then
+                printf "\n###### INSTALLING ALB_ADD ######\n\n"
+                sudo ln -sF $INSTALL_DIR/alb_add.py $BIN_DIR/alb_add
+                sudo chmod +x $1
+            fi
+            ;;
         $BIN_DIR/yt2mp3)
-            printf "\n###### INSTALLING YT2MP3 ######\n\n"
-            sudo cp $(dirname $0)/yt2mp3.py $INSTALL_DIR
-            sudo ln -sF $INSTALL_DIR/yt2mp3.py $BIN_DIR/yt2mp3
-            sudo chmod +x $1;;
+            sudo cp $(dirname $0)/yt2mp3.py $INSTALL_DIR # always cp for updates to src
+
+            if [ ! -e $BIN_DIR/yt2mp3 ]; then
+                printf "\n###### INSTALLING YT2MP3 ######\n\n"
+                sudo ln -sF $INSTALL_DIR/yt2mp3.py $BIN_DIR/yt2mp3
+                sudo chmod +x $1
+            fi
+            ;;
     esac
     check_error $1 # check if installed correctly
 }
