@@ -1,13 +1,13 @@
 #!/usr/bin/env python2.7
 
 import os.path as path
+import yt2mp3
 import sys
 
 try: 
     import eyeD3
 except ImportError:
     import eyed3
-
 
 """
 Funcint uses os.path to check if file exists
