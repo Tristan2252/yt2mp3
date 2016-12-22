@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_DIR="/opt/yt2mp3/"
+INSTALL_DIR="/opt/yt2mp3"
 BIN_DIR="/usr/local/bin"
 
 YOUTUBE_DL="/usr/local/bin/youtube-dl"

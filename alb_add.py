@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.7
 
 import os.path as path
-import yt2mp3
 import sys
 
 try: 
