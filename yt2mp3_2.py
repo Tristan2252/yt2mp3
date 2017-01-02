@@ -44,6 +44,24 @@ def get_input(string):
         else:
             return ans
 
+"""
+Parses string to be readable by bash. Uses replace to switch patters such as ' ' with
+bash space '\ '. This is done to enable path to be read correctly by bash when it is
+passed to bash_call() to call the command string
+string: the string to parse
+"""
+def parse_str(string):
+    nu_str = string
+    chars = {" ": "\ ",
+            "(": "\(",
+            ")": "\(",
+            "'": "\\'"}
+
+    for key in chars:
+        nu_str = nu_str.replace(key, chars[key])
+
+    nu_str = nu_str.rstrip("\n") # remove newline
+    return nu_str
 
 class Flags(object):
     def __init__(self, args):
@@ -116,6 +134,7 @@ class Flags(object):
         if '-t' in self.arg_lst:
             self.time = self.get_coArg('-t')
         if '-r' in self.arg_lst:
+            self.verbose = 1
             self.remove_tmp = 1
         if '-k' in self.arg_lst:
             self.keep_files = 1
@@ -143,19 +162,23 @@ class Flags(object):
 
 class Song(object):
     def __init__(self):
-        """
-        Video file path
-        """
-        self.v_file_path = ""
-        self.artist = ""
+        self.v_file_path = "",
+        
         """
         self.song MUST always be set because it is what yt2mp3 uses to set the file name 
         of the song
         """
-        self.song = " Dutchman must have a captain"
+        self.song = ""
+        self.artist = ""
         self.album = ""
         self.alb_artist = ""
         self.genre = ""
+        
+        self.prompt_lst = ["Enter Song Name: ", \
+                           "Enter Artist Name: ", \
+                           "Enter Album Name: ", \
+                           "Enter Album Artist Name: ", \
+                           "Enter Genre: "]
 
     def set_file_path(self, download_path):
 
@@ -178,38 +201,90 @@ class Song(object):
         self.v_file_path = cur_file
 
     def set_tags(self):
-        print("Enter the fallowing info, all fields can be skipped except the Song Name\n
-                by pressing Enter. Use '\\back' to redo current field.\n")
-
-        input_tag(self.song, "Enter Song Name: ")
-        input_tag(self.artist, "Enter Artist Name: ")
-        input_tag(self.album, "Enter Album Name: ")
-        input_tag(self.alb_artist, "Enter Album Artist Name: ")
-        input_tag(self.genre, "Enter Genre: ")
-
-    def input_tag(self, tag, prompt):
-
+        print("Enter the fallowing info, all fields can be skipped except the Song Name")
+        print("by pressing Enter. Use '\\back' to redo current field.\n")
+        
         while True:
-            tag = get_input(prompt)
-            if tag != '\\back':
-                break
-            
+            for i,prompt in enumerate(self.prompt_lst):
+                self.print_tags()
+                tmp_str = get_input("\033[K" + prompt)
+
+                if tmp_str == '\\back':
+                    print("\033[8A")
+                    break
+               
+                # take care of special chars for bash 
+                tmp_str = parse_str(tmp_str)
+
+                if i == 0:
+                    self.song = tmp_str
+
+                    # Fail safe for song title, see self.song description
+                    if self.song == "":
+                        self.song = "Dutchman\ must\ have\ a\ captain"
+
+                elif i == 1:
+                    self.artist = tmp_str
+                elif i == 2:
+                    self.album = tmp_str
+                elif i == 3:
+                    self.alb_artist = tmp_str
+                elif i == 4:
+                    self.genre = tmp_str
+                    print("\033[8A")
+                    self.print_tags()
+                    return
+
+                print("\033[8A") # ascii escape sequences are awesome!!
+
+
+    def print_tags(self):
+        print("Song Name         : {}".format(self.song))
+        print("Artist Name       : {}".format(self.artist))
+        print("Album Name        : {}".format(self.album))
+        print("Album Artist Name : {}".format(self.alb_artist))
+        print("Genre             : {}".format(self.genre))
+        print() # adding some white space
+
 
 
 class Command(object):
     
     def __init__(self, verbose):
+        self.verbose = verbose
+
         self.update_cmd = "git clone https://github.com/Tristan2252/yt2mp3; yt2mp3/install.sh; sudo rm -r yt2mp3/"
         self.rm_cmd = "sudo rm -r {}" # left blank so that path can be added to it
-        self.echo_cmd = "echo {}"
         self.youtube_dl_cmd = 'youtube-dl -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
-
-        self.verbose = verbose
+        """
+        -loglevel error: Show all errors, including ones which can be recovered from.
+        """
+        self.ffmpeg_conv = "ffmpeg -loglevel error -nostats -i {}"\
+                           " -metadata title={} -metadata artist={} -metadata album_artist={}"\
+                           " -metadata album={} -metadata genre={} -b:a 192K -vn {}.mp3"
+        self.ffmpeg_art = "ffmpeg -loglevel error -nostats -i {} -ss {} -vframes 1 {}"
         
     def download(self, path, link):
+        print("\033[1A" + "\033[K")
         # ugh, I dont like this its too hard to read and fallow... TODO: A better way?
         self.youtube_dl_cmd = self.youtube_dl_cmd.format(path, link)
         self.run(self.youtube_dl_cmd)
+
+    def apply_tags(self, song_obj):
+        print(song_obj.song)
+        self.run(self.ffmpeg_conv.format(
+                    song_obj.v_file_path,
+                    song_obj.song,
+                    song_obj.artist,
+                    song_obj.alb_artist,
+                    song_obj.album,
+                    song_obj.genre,
+                    song_obj.song))
+
+    def get_vid_art(self, vid_path, vid_time, tmp_folder):
+        print() # account for loading animation printing 
+        self.run(self.ffmpeg_art.format(
+            vid_path, vid_time, tmp_folder + "/output.jpg"))
 
     def update(self):
         # remove anything in install dir
@@ -258,6 +333,7 @@ class Command(object):
         error = proc.communicate()[1]
         if str(error) != "b''":
             print("Error Faild Subprocess: {}\n\n".format(cmd))
+            sys.exit()
 
     """
     The CR character '\r' goes to the begining of the current line and writes from 
@@ -268,8 +344,8 @@ class Command(object):
         
         cnt = 0
         while p.poll() == None:
-            string = "Loading" + "." * cnt
-            print (string, end="\r")
+            string = "\033[1A\033[KLoading" + "." * cnt
+            print(string)
             time.sleep(1)
 
             cnt += 1
@@ -277,6 +353,8 @@ class Command(object):
                 # clear out dots with spaces
                 print ("Loading     ", end="\r")
                 cnt = 0
+
+        print("\033[2A\033[K")
 
 def main():
 
@@ -324,9 +402,15 @@ def main():
     ###############################   init song   ###################################
     song = Song()
     song.set_file_path(flags.download_path)
+    song.set_tags()
+
+    yt2mp3.apply_tags(song)
+    yt2mp3.get_vid_art(song.v_file_path, flags.time, flags.download_path)
 
 if __name__ == "__main__":
-
+   
+    # clear screen and print at top: see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
+    print("\033[2J\033[0;0H")
     print("")
     print("\t\t#############################")
     print("\t\t#### -- Yt2mp3 BETA 2 -- ####")
