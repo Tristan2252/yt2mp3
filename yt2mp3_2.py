@@ -1,31 +1,56 @@
-import sys, getopt
 import subprocess as sp
-import string
+import sys, getopt
+#import string
+import eyed3
 import time
 import os
 
-        
+
+
+"""
+Lambda's for Print escape sequences 
+http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
+http://ascii-table.com/ansi-escape-sequences.php
+"""
+#########################  COLORS  #################################
+RED = lambda string: "\033[31;1m{}\033[0m".format(string)
+YELLOW = lambda string: "\033[33;1m{}\033[0m".format(string)
+WHITE = lambda string: "\033[37;1m{}\033[0m".format(string)
+
+##################  STDOUT Manipulation  ###########################
+CLEAR_REPLACE = lambda line_num: "\033[{}A\033[K".format(line_num)
+CLEAR_LINE = lambda: "\033[K"
+REPLACE = lambda line_num: "\033[{}A".format(line_num)
+
+def draw_screen():
+    print("\033[2J\033[0;0H")
+    print("")
+    print("\t\t#############################")
+    print("\t\t#### -- " + RED("Yt2mp3 BETA 2") + " -- ####")
+    print("\t\t#############################")
+    print("\n")
+
 """
 Print out usage for user
 """
 def usage():
-    print("")
-    print("$ yt2mp3 [YOUTUBE URL] [OPTIONS]")
-    print("")
-    print("Options:")
-    print("[-u]                 run update for yt2mp3 and youtube-dl")
-    print("[-v]                 run yt2mp3 in verbose mode (display all output)")
-    print("[-t] [00:00:00.000]  set time to get album art from")
-    print("[-r]                 remove all temp files")
-    print("[-k]                 keep all temp files")
-    print("[-h]                 print help screen")
-    print("[-d] [PATH]          set a custom download path")
-    print("")
-    print("In App Commands:")
-    print("[\exit]              exit program at any input")
-    print("[\\back]              use to redo tags")
-    print("[\help]              print out usage in app")
-    print("")
+    print("\n"\
+          "$ yt2mp3 [YOUTUBE URL] [OPTIONS]\n"\
+          "\n"\
+          "Options:\n"\
+          "[-u]                 run update for yt2mp3 and youtube-dl\n"\
+          "[-v]                 run yt2mp3 in verbose mode (display all output)\n"\
+          "[-t] [00:00:00.000]  set time to get album art from\n"\
+          "[-r]                 remove all temp files\n"\
+          "[-k]                 keep all temp files\n"\
+          "[-h]                 print help screen\n"\
+          "[-d] [PATH]          set a custom download path\n"\
+          "\n"\
+          "In App Commands:\n"\
+          "[\exit]              exit program at any input\n"\
+          "[\help]              print out usage in app\n"\
+          "[\\back]              use to redo tags ONLY\n"\
+          "\n")
 
 
 
@@ -56,7 +81,7 @@ def parse_str(string):
             "(": "\(",
             ")": "\(",
             "'": "\\'"}
-
+   
     for key in chars:
         nu_str = nu_str.replace(key, chars[key])
 
@@ -102,13 +127,9 @@ class Flags(object):
         output.jpg (album art) as well as any other logs for debuging
         """
         self.time = '00:00:10.000'
-        """
-        ffmpeg binary uses to call ffmpeg when bash string command is called
-        """
-        self.FFMPEG_BIN = 'ffmpeg -loglevel panic -nostats'
-
         self.link = ""
         self.file_path = ""
+        self.alb_add = None
 
 
     def print_flag_status(self):
@@ -142,6 +163,8 @@ class Flags(object):
             self.usage = 1
         if '-d' in self.arg_lst:
             music_folder = get_coArg('-d')
+        if '--alb_add' in self.arg_lst:
+            self.alb_add = 1
         
     def get_coArg(self, arg):
         for i, item in enumerate(self.arg_lst):
@@ -163,7 +186,8 @@ class Flags(object):
 class Song(object):
     def __init__(self):
         self.v_file_path = "",
-        
+        self.s_file_path = ""
+        self.art_file_path = ""
         """
         self.song MUST always be set because it is what yt2mp3 uses to set the file name 
         of the song
@@ -195,7 +219,7 @@ class Song(object):
         cur_file = download_path + "/" + file_lst[0]
         for i in file_lst:
             i = download_path + "/" + i
-            if os.path.getctime(i) > os.path.getctime(cur_file):
+            if (".mp4" in i) and (os.path.getctime(i) > os.path.getctime(cur_file)):
                 cur_file = i
 
         self.v_file_path = cur_file
@@ -207,10 +231,10 @@ class Song(object):
         while True:
             for i,prompt in enumerate(self.prompt_lst):
                 self.print_tags()
-                tmp_str = get_input("\033[K" + prompt)
+                tmp_str = get_input(CLEAR_LINE() + prompt)
 
                 if tmp_str == '\\back':
-                    print("\033[8A")
+                    print(REPLACE(8))
                     break
                
                 # take care of special chars for bash 
@@ -222,6 +246,8 @@ class Song(object):
                     # Fail safe for song title, see self.song description
                     if self.song == "":
                         self.song = "Dutchman\ must\ have\ a\ captain"
+                    
+                    self.s_file_path = self.song + ".mp3"
 
                 elif i == 1:
                     self.artist = tmp_str
@@ -231,21 +257,38 @@ class Song(object):
                     self.alb_artist = tmp_str
                 elif i == 4:
                     self.genre = tmp_str
-                    print("\033[8A")
+                    draw_screen() # get rid of top instructions
                     self.print_tags()
                     return
+                
+                # idk why i need two of these but 9 doesnt work -__-
+                print(CLEAR_REPLACE(7))
+                print(CLEAR_REPLACE(2))
 
-                print("\033[8A") # ascii escape sequences are awesome!!
+    def get_alb_art(self, tmp_folder):
 
+        opt = get_input("Would you like to Add a custom Album art? y/N: ")
+        if opt == "y" or opt == "yes" or opt == "Y":
+            while True:
+                self.art_file_path = get_input(CLEAR_LINE() + "Enter custom art path here: ")
+
+                if os.path.isfile(self.art_file_path):
+                    if ".jpg" in self.art_file_path:
+                        break
+                else:
+                    print(CLEAR_REPLACE(2) + YELLOW("File not fond or invalid type"))
+
+        else:
+            self.art_file_path = tmp_folder + "/output.jpg"
+        
 
     def print_tags(self):
-        print("Song Name         : {}".format(self.song))
-        print("Artist Name       : {}".format(self.artist))
-        print("Album Name        : {}".format(self.album))
-        print("Album Artist Name : {}".format(self.alb_artist))
-        print("Genre             : {}".format(self.genre))
+        print("Song Name         : {}\t File Name: {}".format(WHITE(self.song), WHITE(self.s_file_path)))
+        print("Artist Name       : {}".format(WHITE(self.artist)))
+        print("Album Name        : {}".format(WHITE(self.album)))
+        print("Album Artist Name : {}".format(WHITE(self.alb_artist)))
+        print("Genre             : {}".format(WHITE(self.genre)))
         print() # adding some white space
-
 
 
 class Command(object):
@@ -255,23 +298,43 @@ class Command(object):
 
         self.update_cmd = "git clone https://github.com/Tristan2252/yt2mp3; yt2mp3/install.sh; sudo rm -r yt2mp3/"
         self.rm_cmd = "sudo rm -r {}" # left blank so that path can be added to it
-        self.youtube_dl_cmd = 'youtube-dl -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
+        self.youtube_dl_cmd = 'youtube-dl --no-playlist -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
         """
         -loglevel error: Show all errors, including ones which can be recovered from.
         """
-        self.ffmpeg_conv = "ffmpeg -loglevel error -nostats -i {}"\
+        self.ffmpeg_conv = "ffmpeg -y -loglevel error -nostats -i {}"\
                            " -metadata title={} -metadata artist={} -metadata album_artist={}"\
-                           " -metadata album={} -metadata genre={} -b:a 192K -vn {}.mp3"
-        self.ffmpeg_art = "ffmpeg -loglevel error -nostats -i {} -ss {} -vframes 1 {}"
+                           " -metadata album={} -metadata genre={} -b:a 192K -vn {}"
+        """
+        vid_path, vid_time, outputh_path
+        """
+        self.ffmpeg_art = "ffmpeg -y -loglevel error -nostats -i {} -ss {} -vframes 1 {}"
+        self.mkdir = "mkdir {}"
         
     def download(self, path, link):
-        print("\033[1A" + "\033[K")
+        print(CLEAR_REPLACE(1))
         # ugh, I dont like this its too hard to read and fallow... TODO: A better way?
         self.youtube_dl_cmd = self.youtube_dl_cmd.format(path, link)
         self.run(self.youtube_dl_cmd)
 
     def apply_tags(self, song_obj):
-        print(song_obj.song)
+
+        while os.path.isfile(song_obj.s_file_path):
+            print(YELLOW("You already have a file Called {}").format(song_obj.s_file_path))
+            opt = get_input("Would you like to replace it y/N: ")
+            print(CLEAR_REPLACE(1))
+            if opt == "y" or opt == "Y" or opt == "yes":
+                break
+            
+            print(CLEAR_REPLACE(2) + YELLOW("NOTE: Changing the name only changes the file name not the Song title"))
+            song_obj.s_file_path = parse_str(get_input(CLEAR_LINE() + "Enter New file name: "))
+           
+            # update file status in tag list
+            draw_screen()
+            song_obj.print_tags()
+        
+        print(CLEAR_REPLACE(2))
+
         self.run(self.ffmpeg_conv.format(
                     song_obj.v_file_path,
                     song_obj.song,
@@ -279,12 +342,15 @@ class Command(object):
                     song_obj.alb_artist,
                     song_obj.album,
                     song_obj.genre,
-                    song_obj.song))
+                    song_obj.s_file_path))
 
-    def get_vid_art(self, vid_path, vid_time, tmp_folder):
-        print() # account for loading animation printing 
-        self.run(self.ffmpeg_art.format(
-            vid_path, vid_time, tmp_folder + "/output.jpg"))
+    def pull_alb_art(self, file_path, time, art_path):
+        self.run(self.ffmpeg_art.format(file_path, time, art_path))
+
+    def check_folder(self, ck_folder):
+        if not os.path.isdir(ck_folder):
+            print("Temp Folder Created at: " + ck_folder)
+            self.run(self.mkdir.format(ck_folder), True)
 
     def update(self):
         # remove anything in install dir
@@ -306,13 +372,45 @@ class Command(object):
         print("\n Temp Files removed\n")
         sys.exit()
 
-    def run(self, cmd):
+    def alb_add(self, song_path, art_path):
+
+        ##########################################################################
+        #          Conditons to allow for alb_add to be ran standalone           #
+        ##########################################################################
+        rm_comma = lambda string: string[1:-1] if string[0] == "\\'" else string
+
+        if not song_path:
+            while True:
+                song_path = rm_comma(get_input("Enter song file path: "))
+                if os.path.isfile(song_path) and ".mp3" in song_path:
+                    break
+                draw_screen()
+                print(YELLOW("File not found or invalid type"))
+
+        if not art_path:
+            while True:
+                art_path = rm_comma(get_input("Enter art file path: "))
+                if os.path.isfile(art_path) and ".jpg" in art_path:
+                    break
+                draw_screen()
+                print(YELLOW("File not found or invalid type"))
+        
+        #TODO: eyed3 only works with python2.7  >:(
+        imagedata = open(art_path, "rb").read() # open image
+        audiofile = eyed3.load(song_path) # load mp3 into eyed3
+        audiofile.tag.images.set(3, imagedata, "image/jpeg", u" ")
+        audiofile.tag.save()
+        
+        draw_screen()
+        print("Added {} to {} as album conver!\n".format(WHITE(art_path), WHITE(song_path)))
+
+    def run(self, cmd, output=False):
 
         """
-        if verbose is set run Popen with no piping so that the user can see 
+        if output or verbose is set run Popen with no piping so that the user can see 
         output for temselvs
         """
-        if self.verbose:
+        if output or self.verbose:
             proc = sp.Popen(cmd, shell=True)
             proc.wait()
             
@@ -329,10 +427,12 @@ class Command(object):
         proc = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
         self.progress(proc)
         proc.wait()
-
-        error = proc.communicate()[1]
-        if str(error) != "b''":
-            print("Error Faild Subprocess: {}\n\n".format(cmd))
+        
+        # Grab stderr to process
+        error = str(proc.communicate()[1])
+        if error != "b''":
+            print(RED("Error Faild Subprocess: ") + "{}".format(cmd))
+            print(YELLOW(error[2:])) # print stderr to user
             sys.exit()
 
     """
@@ -342,19 +442,21 @@ class Command(object):
     """
     def progress(self, p):
         
+        draw_screen()
         cnt = 0
         while p.poll() == None:
-            string = "\033[1A\033[KLoading" + "." * cnt
+            string = CLEAR_REPLACE(1) + "Loading" + "." * cnt
             print(string)
             time.sleep(1)
 
             cnt += 1
             if cnt == 5:
                 # clear out dots with spaces
-                print ("Loading     ", end="\r")
+                print (CLEAR_REPLACE(1) + "Loading     ")
                 cnt = 0
-
-        print("\033[2A\033[K")
+        
+        # Overwrite Loading animation
+        print(CLEAR_REPLACE(2))
 
 def main():
 
@@ -365,6 +467,7 @@ def main():
     flags.set_flags()
 
     yt2mp3 = Command(flags.verbose)
+    
 
     #################################################################################
     #                                                                               #
@@ -385,14 +488,28 @@ def main():
 
     if (flags.remove_tmp):
         yt2mp3.remove_tmp(flags.download_path)
+
+    if (flags.alb_add):
+        
+        try:
+            song = Alb_Add(flags.arg_lst[1], flags.arg_lst[2])
+        except IndexError:
+            song = Alb_Add(None, None)
+
+        sys.exit()
     
     #################################################################################
     #                           Primary Functions start here                        #
     #################################################################################
+    yt2mp3.check_folder(flags.download_path)
     
     # check for or set valid youtube url to download from
     if (not flags.get_link()):
         flags.link = get_input("Enter Youtube Download Link: ")
+
+        # Get rid of youtube timestamp in link, youtube-dl give an error becaus of this 
+        if '&t=' in flags.link:
+            flags.link = flags.link.split('&')[0]
 
     
     ###########################     begin donwload     ##############################
@@ -401,20 +518,18 @@ def main():
     
     ###############################   init song   ###################################
     song = Song()
+    
     song.set_file_path(flags.download_path)
     song.set_tags()
+    song.get_alb_art(flags.download_path)
+
+    if song.art_file_path == flags.download_path + "/output.jpg":
+            yt2mp3.pull_alb_art(song.v_file_path, flags.time, song.art_file_path)
 
     yt2mp3.apply_tags(song)
-    yt2mp3.get_vid_art(song.v_file_path, flags.time, flags.download_path)
+    yt2mp3.alb_add(song.s_file_path, song.art_file_path)
+    
 
 if __name__ == "__main__":
-   
-    # clear screen and print at top: see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
-    print("\033[2J\033[0;0H")
-    print("")
-    print("\t\t#############################")
-    print("\t\t#### -- Yt2mp3 BETA 2 -- ####")
-    print("\t\t#############################")
-    print("")
-
+    draw_screen()
     main()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.5
 
 import os.path as path
 import sys
@@ -85,6 +85,7 @@ def main():
         in_put = raw_input("Enter a .jpg file: ")
         art = parce_path(in_put)
 
+    print(art + ", " + filename)
     imagedata = open(art, "rb").read() # open image
 
     audiofile = eyed3.load(filename) # load image into eyed3
