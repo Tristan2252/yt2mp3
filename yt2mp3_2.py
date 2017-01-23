@@ -1,17 +1,30 @@
+from mutagen.id3 import APIC
+from mutagen.mp3 import MP3
 import subprocess as sp
 import sys, getopt
-#import string
-import eyed3
 import time
 import os
 
-
-
 """
-Lambda's for Print escape sequences 
-http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html
-http://ascii-table.com/ansi-escape-sequences.php
+#########################################################################################
+#                        Lambda's for Print escape sequences                            #
+#                                                                                       #
+#  RED: Concatenates escape sequence for red text with the string passed to it          #
+#  YELLOW: Concatenates escape sequence for yellow text with the string passed to it    #
+#  WHITE: Concatenates escape sequence for white text with the string passed to it      #
+#                                                                                       #
+#  CLEAR_REPLACE: Escape sequence for moving x lines up then clearing the line,         #
+#                 allowing for priting from that line                                   #
+#  REPLACE: Escape sequence that moves to the begining of the current line or line      #
+#           passed in                                                                   #
+#  CLEAR_LINE: Runs escape sequence to clear current line                               #
+#                                                                                       #
+#  http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x361.html                                #
+#  http://ascii-table.com/ansi-escape-sequences.php                                     #
+#                                                                                       #
+#########################################################################################
 """
+
 #########################  COLORS  #################################
 RED = lambda string: "\033[31;1m{}\033[0m".format(string)
 YELLOW = lambda string: "\033[33;1m{}\033[0m".format(string)
@@ -19,9 +32,18 @@ WHITE = lambda string: "\033[37;1m{}\033[0m".format(string)
 
 ##################  STDOUT Manipulation  ###########################
 CLEAR_REPLACE = lambda line_num: "\033[{}A\033[K".format(line_num)
-CLEAR_LINE = lambda: "\033[K"
 REPLACE = lambda line_num: "\033[{}A".format(line_num)
+CLEAR_LINE = lambda: "\033[K"
 
+#################################################################################
+#                                                                               #
+#                             Helper Functions                                  #
+#                                                                               #
+#################################################################################
+"""
+Splash screen to print to user when called, not much more to explane here
+return: 
+"""
 def draw_screen():
     print("\033[2J\033[0;0H")
     print("")
@@ -32,6 +54,7 @@ def draw_screen():
 
 """
 Print out usage for user
+return:
 """
 def usage():
     print("\n"\
@@ -55,8 +78,13 @@ def usage():
 
 
 """
-Custom input function to allow for an exit string that stops program at any input 
-by the user typing '\exit'
+Custom input function, takes in string as input and passes it into input. 
+get_input() then checks the input given for commands such as \exit or \help 
+to provide the user with additional functionality when being prompted with 
+requited input
+
+param string: type string used as prompt to pass into input()
+return ans: type string of users input
 """
 def get_input(string):
     while True:
@@ -70,10 +98,14 @@ def get_input(string):
             return ans
 
 """
-Parses string to be readable by bash. Uses replace to switch patters such as ' ' with
-bash space '\ '. This is done to enable path to be read correctly by bash when it is
-passed to bash_call() to call the command string
-string: the string to parse
+Iterates through string and sets special chars to chars usable by the program, most of
+these include bash chars because input is passed into youtube-dl through bash using 
+with provided strings from the user. Other cases include extra spaces or quotes at the
+end or begining of the string. This happens when items are put into input via drag and 
+drop. Newlines are also striped usig rstrip.
+
+param string: type string, the string to parse
+return nu_str: type string consisting of the edited string
 """
 def parse_str(string):
     nu_str = string
@@ -81,6 +113,12 @@ def parse_str(string):
             "(": "\(",
             ")": "\(",
             "'": "\\'"}
+    
+    # check firs and last chars
+    if nu_str[1] == "'" or nu_str[1] == " ":
+        nu_str = nu_str[1:]
+    if nu_str[-1] == "'" or nu_str[-1] == " ":
+        nu_str = nu_str[:-1]
    
     for key in chars:
         nu_str = nu_str.replace(key, chars[key])
@@ -88,19 +126,34 @@ def parse_str(string):
     nu_str = nu_str.rstrip("\n") # remove newline
     return nu_str
 
+#################################################################################
+#                                                                               #
+#                                FLAGS Class                                    #
+#                                                                               #
+#  This class is used to look through args passed into yt2mp3 and store them    #
+#  as flags to be used through out the program                                  #
+#                                                                               #
+#################################################################################
+
 class Flags(object):
     def __init__(self, args):
 
         """
-        Arguments passed into program are them passed into Flags as a list and then
-        used to identify what flags need to be set. See 'def usage()' for details on 
-        flags and their meaning. 
+        A list from sys.argv() containing all the args used when yt2mp3 was called
+        from the shell. This list is set to a var local to the flags class so that 
+        it can be uese throughout the class without having to pass it in
         """
         self.arg_lst = args 
 
-        ############### PROGRAM DEFAULT VALUES  ##############
+        #################################################################################
+        #                                                                               #
+        #                           v PROGRAM DEFAULT VALUES v                          #
+        #                                                                               #
+        #################################################################################
+        
+        # TODO: commenting
         """
-        Verbose flag to run program in verbose mode or not. If set to 0 no debug output
+        Verbose flag to run program in verbose mode if set to True or 1. If set to 0 no debug output
         is printed to screen. If 1 all bash commands print output to stdout
         """
         self.verbose = 0
@@ -310,6 +363,7 @@ class Command(object):
         """
         self.ffmpeg_art = "ffmpeg -y -loglevel error -nostats -i {} -ss {} -vframes 1 {}"
         self.mkdir = "mkdir {}"
+        self._albadd = "alb_add {} {}"
         
     def download(self, path, link):
         print(CLEAR_REPLACE(1))
@@ -363,6 +417,42 @@ class Command(object):
         usage()
         sys.exit()
 
+    def alb_add(self, art=None, song=None):
+            
+        ##########################################################################
+        #          Conditons to allow for alb_add to be ran standalone           #
+        ##########################################################################
+        if not song:
+            while True:
+                song_file = parse_str(get_input("Enter song file path: "))
+                if os.path.isfile(song_file) and ".mp3" in song_file:
+                    draw_screen()
+                    break
+                draw_screen()
+                print(YELLOW("File not found or invalid type"))
+        else:
+            song_file = parse_str(song)
+
+        if not art:
+            while True:
+                art_file = parse_str(get_input("Enter art file path: "))
+                if os.path.isfile(art_file) and ".jpg" in art_file:
+                    draw_screen()
+                    break
+                draw_screen()
+                print(YELLOW("File not found or invalid type"))
+        else:
+            art_file= parse_str(art)
+        
+
+        p = open(art_file, 'rb').read()
+        audio = MP3(song_file)
+        audio['APIC'] = APIC(3, 'image/jpeg', 3, 'Front cover', p)
+        audio.save()
+
+        draw_screen()
+        print("Added {} to {} as album conver!\n".format(WHITE(art_file), WHITE(song_file)))
+
     def remove_tmp(self, path):
         
         # only attempt to remove if folder exists
@@ -371,38 +461,6 @@ class Command(object):
 
         print("\n Temp Files removed\n")
         sys.exit()
-
-    def alb_add(self, song_path, art_path):
-
-        ##########################################################################
-        #          Conditons to allow for alb_add to be ran standalone           #
-        ##########################################################################
-        rm_comma = lambda string: string[1:-1] if string[0] == "\\'" else string
-
-        if not song_path:
-            while True:
-                song_path = rm_comma(get_input("Enter song file path: "))
-                if os.path.isfile(song_path) and ".mp3" in song_path:
-                    break
-                draw_screen()
-                print(YELLOW("File not found or invalid type"))
-
-        if not art_path:
-            while True:
-                art_path = rm_comma(get_input("Enter art file path: "))
-                if os.path.isfile(art_path) and ".jpg" in art_path:
-                    break
-                draw_screen()
-                print(YELLOW("File not found or invalid type"))
-        
-        #TODO: eyed3 only works with python2.7  >:(
-        imagedata = open(art_path, "rb").read() # open image
-        audiofile = eyed3.load(song_path) # load mp3 into eyed3
-        audiofile.tag.images.set(3, imagedata, "image/jpeg", u" ")
-        audiofile.tag.save()
-        
-        draw_screen()
-        print("Added {} to {} as album conver!\n".format(WHITE(art_path), WHITE(song_path)))
 
     def run(self, cmd, output=False):
 
@@ -458,17 +516,20 @@ class Command(object):
         # Overwrite Loading animation
         print(CLEAR_REPLACE(2))
 
+
 def main():
 
     ################################################################################
     #                                 setup flags                                  #
     ################################################################################
+    
+    # init flags class and pass in command args
     flags = Flags(sys.argv[1:])
+    # go through all the command flags and set them
     flags.set_flags()
-
+    # init yt2mp3 and let command know if it needs to be verbose or not
     yt2mp3 = Command(flags.verbose)
     
-
     #################################################################################
     #                                                                               #
     #                            Standalone Functions                               #
@@ -480,56 +541,84 @@ def main():
     #  is executed.                                                                 #
     #                                                                               #
     #################################################################################
+    
     if (flags.update):
+        # run update of yt2mp3 and youtube-dl
         yt2mp3.update()
 
     if (flags.usage):
+        # print help page
         yt2mp3.print_usage()
 
     if (flags.remove_tmp):
+        # delete temp file
         yt2mp3.remove_tmp(flags.download_path)
 
     if (flags.alb_add):
         
         try:
-            song = Alb_Add(flags.arg_lst[1], flags.arg_lst[2])
+            # attempt to pass arg 1 and 2 into alb_add()
+            yt2mp3.alb_add(flags.arg_lst[1], flags.arg_lst[2])
         except IndexError:
-            song = Alb_Add(None, None)
-
+            # if no args run alb_add() as default
+            yt2mp3.alb_add()
         sys.exit()
     
     #################################################################################
+    #                                                                               #
     #                           Primary Functions start here                        #
+    #                                                                               #
+    #  Functions that are called without exiting the program directly after         #
+    #  returning. These functions are used as the primary functionality of yt2mp3   #
+    #                                                                               #
     #################################################################################
+
+    # check if download path is valid
     yt2mp3.check_folder(flags.download_path)
     
     # check for or set valid youtube url to download from
     if (not flags.get_link()):
         flags.link = get_input("Enter Youtube Download Link: ")
 
-        # Get rid of youtube timestamp in link, youtube-dl give an error becaus of this 
+        # Get rid of youtube timestamp in link, youtube-dl gives an error because of this 
         if '&t=' in flags.link:
             flags.link = flags.link.split('&')[0]
 
     
-    ###########################     begin donwload     ##############################
+    #################################################################################
+    #                               begin donwload                                  #
+    #################################################################################
+
     yt2mp3.download(flags.download_path, flags.link)
 
     
-    ###############################   init song   ###################################
+    #################################################################################
+    #                                 init song                                     #
+    #                                                                               #
+    #  Set up song class and needed flags to be used through out the program        #
+    #                                                                               #
+    #################################################################################
+
     song = Song()
     
     song.set_file_path(flags.download_path)
+    # Get tags from user
     song.set_tags()
+    # Ask user if they would like to set a custom art or use default
     song.get_alb_art(flags.download_path)
 
+    # if the art_file_path is set to path+output.jpg, in oter words its the default then
+    # fetch the art from the mp4 file using pull_alb_art()
     if song.art_file_path == flags.download_path + "/output.jpg":
             yt2mp3.pull_alb_art(song.v_file_path, flags.time, song.art_file_path)
 
+    # add all tags and convert to mp3 using ffmpeg
     yt2mp3.apply_tags(song)
-    yt2mp3.alb_add(song.s_file_path, song.art_file_path)
+    # Add album art using alb_add()
+    yt2mp3.alb_add(song.art_file_path, song.s_file_path)
+
     
 
 if __name__ == "__main__":
-    draw_screen()
+    draw_screen() # print splash screen
     main()

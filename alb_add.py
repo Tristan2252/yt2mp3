@@ -66,7 +66,7 @@ def main():
     except IndexError:
         help_page()
         return 3
-
+    print(filename, art)
     while check_file(filename):
         in_put = raw_input("Enter valid file path for mp3: ")
         filename = parce_path(in_put) # convert to acceptable path
