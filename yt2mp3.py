@@ -117,11 +117,12 @@ def parse_str(string):
             "'": "\\'"}
     
     # check firs and last chars
-    if nu_str != "":
-        if nu_str[0] == "'" or nu_str[0] == " ":
-            nu_str = nu_str[1:]
-        if nu_str[-1] == "'" or nu_str[-1] == " ":
-            nu_str = nu_str[:-1]
+    if nu_str == "":
+        return nu_str
+    if nu_str[0] == "'" or nu_str[0] == " ":
+        nu_str = string[1:]
+    if nu_str[-1] == "'" or nu_str[-1] == " ":
+        nu_str = nu_str[:-1]
    
     for key in chars:
         nu_str = nu_str.replace(key, chars[key])
@@ -281,45 +282,46 @@ class Song(object):
         self.v_file_path = cur_file
 
     def set_tags(self):
-        print("Enter the fallowing info, all fields can be skipped except the Song Name")
-        print("by pressing Enter. Use '\\back' to redo current field.\n")
         
+        draw_screen()
         while True:
+
             for i,prompt in enumerate(self.prompt_lst):
+                print("Enter the fallowing info, all fields can be skipped except the Song Name")
+                print("by pressing Enter. Use '\\back' to redo previous field.\n")
+
                 self.print_tags()
-                tmp_str = get_input(CLEAR_LINE() + prompt)
+                tmp_str = get_input(CLEAR_LINE() + self.prompt_lst[i])
 
                 if tmp_str == '\\back':
-                    print(REPLACE(8))
+                    draw_screen()
                     break
                
                 # take care of special chars for bash 
                 tmp_str = parse_str(tmp_str)
+                if tmp_str or i == 4: # if == 4 then enter statement because return is needed 
+                    if i == 0:
+                        # Fail safe for song title, see self.song description
+                        self.song = tmp_str
+                        self.s_file_path = self.song + ".mp3"
 
-                if i == 0:
-                    self.song = tmp_str
-
-                    # Fail safe for song title, see self.song description
+                    elif i == 1:
+                        self.artist = tmp_str
+                    elif i == 2:
+                        self.album = tmp_str
+                    elif i == 3:
+                        self.alb_artist = tmp_str
+                    elif i == 4:
+                        self.genre = tmp_str
+                        draw_screen() # get rid of top instructions
+                        self.print_tags()
+                        return
+                    
                     if self.song == "":
                         self.song = "Dutchman\ must\ have\ a\ captain"
+                        self.s_file_path = self.song + ".mp3"
                     
-                    self.s_file_path = self.song + ".mp3"
-
-                elif i == 1:
-                    self.artist = tmp_str
-                elif i == 2:
-                    self.album = tmp_str
-                elif i == 3:
-                    self.alb_artist = tmp_str
-                elif i == 4:
-                    self.genre = tmp_str
-                    draw_screen() # get rid of top instructions
-                    self.print_tags()
-                    return
-                
-                # idk why i need two of these but 9 doesnt work -__-
-                print(CLEAR_REPLACE(7))
-                print(CLEAR_REPLACE(2))
+                draw_screen()
 
     def get_alb_art(self, tmp_folder):
 
@@ -332,13 +334,14 @@ class Song(object):
                     if ".jpg" in self.art_file_path:
                         break
                 else:
-                    print(CLEAR_REPLACE(2) + YELLOW("File not fond or invalid type"))
+                    print(CLEAR_REPLACE(2) +YELLOW(self.art_file_path + " not fond or invalid type"))
 
         else:
             self.art_file_path = tmp_folder + "/output.jpg"
         
 
     def print_tags(self):
+        print("\033[37;3mTags List:\033[0m")
         print("Song Name         : {}\t File Name: {}".format(WHITE(self.song), WHITE(self.s_file_path)))
         print("Artist Name       : {}".format(WHITE(self.artist)))
         print("Album Name        : {}".format(WHITE(self.album)))
@@ -453,8 +456,6 @@ class Command(object):
         audio['APIC'] = APIC(3, 'image/jpeg', 3, 'Front cover', p)
         audio.save()
 
-        draw_screen()
-        print("Added {} to {} as album conver!\n".format(WHITE(art_file), WHITE(song_file)))
 
     def remove_tmp(self, path):
         
@@ -620,7 +621,11 @@ def main():
     # Add album art using alb_add()
     yt2mp3.alb_add(song.art_file_path, song.s_file_path)
 
-    print("\n\n" + YELLOW("Finished!") + "Thank you for using" + RED(" Yt2mp3"))
+    draw_screen()
+    print("\033[37;3mProgram Summary:\033[0m")
+    print("Added {} to {} as album conver!\n".format(WHITE(song.art_file_path), WHITE(song.s_file_path)))
+    song.print_tags()
+    print("\n" + YELLOW("Finished!") + " Thank you for using" + RED(" Yt2mp3\n"))
 
 if __name__ == "__main__":
     draw_screen() # print splash screen
