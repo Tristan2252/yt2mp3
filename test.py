@@ -1,2 +1,6 @@
+import yt2mp3
 
-print("\n\033[37;5mTest\033\n")
+test = yt2mp3.Song()
+
+test.get_alb_art("/tmp/yt2mp3")
+

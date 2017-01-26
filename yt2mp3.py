@@ -91,7 +91,8 @@ return ans: type string of users input
 def get_input(string):
     while True:
         ans = input("{}".format(string))
-        
+
+        # check for special commands
         if ans == '\exit':
             sys.exit()
         elif ans == "\help":
@@ -111,19 +112,34 @@ return nu_str: type string consisting of the edited string
 """
 def parse_str(string):
     nu_str = string
+    
+    # Chars to change for bash interpretation
     chars = {" ": "\ ",
             "(": "\(",
             ")": "\(",
             "'": "\\'"}
-    
-    # check firs and last chars
+
+    # blacklisted trailing chars to clean from string 
+    bad_chars = [" ", "'", ";", ":", ",", '"']
+
     if nu_str == "":
         return nu_str
-    if nu_str[0] == "'" or nu_str[0] == " ":
-        nu_str = string[1:]
-    if nu_str[-1] == "'" or nu_str[-1] == " ":
-        nu_str = nu_str[:-1]
    
+    # check first and last chars
+    while True:
+
+        # Clean string by checking for trailing blacklisted chars
+        if nu_str[0] in bad_chars:
+            nu_str = string[1:]
+        if nu_str[-1] in bad_chars:
+            nu_str = nu_str[:-1]
+        
+        # Check if string is clean for both 
+        if nu_str[0] not in bad_chars:
+            if nu_str[-1] not in bad_chars:
+                break
+    
+    # replace chars for bash to read
     for key in chars:
         nu_str = nu_str.replace(key, chars[key])
 
@@ -225,8 +241,8 @@ class Flags(object):
         
     def get_coArg(self, arg):
         for i, item in enumerate(self.arg_lst):
+            # test if its the arg we want
             if item == arg:
-
                 # coarg is asways 1 index after arg thus i+1
                 return self.arg_lst[i+1] 
 
@@ -328,7 +344,7 @@ class Song(object):
         opt = get_input("Would you like to Add a custom Album art? y/N: ")
         if opt == "y" or opt == "yes" or opt == "Y":
             while True:
-                self.art_file_path = get_input(CLEAR_LINE() + "Enter custom art path here: ")
+                self.art_file_path = parse_str(get_input(CLEAR_LINE() + "Enter custom art path here: "))
 
                 if os.path.isfile(self.art_file_path):
                     if ".jpg" in self.art_file_path:
