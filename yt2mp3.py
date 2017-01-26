@@ -100,24 +100,9 @@ def get_input(string):
         else:
             return ans
 
-"""
-Iterates through string and sets special chars to chars usable by the program, most of
-these include bash chars because input is passed into youtube-dl through bash using 
-with provided strings from the user. Other cases include extra spaces or quotes at the
-end or begining of the string. This happens when items are put into input via drag and 
-drop. Newlines are also striped usig rstrip.
 
-param string: type string, the string to parse
-return nu_str: type string consisting of the edited string
-"""
-def parse_str(string):
+def clean_str(string):
     nu_str = string
-    
-    # Chars to change for bash interpretation
-    chars = {" ": "\ ",
-            "(": "\(",
-            ")": "\(",
-            "'": "\\'"}
 
     # blacklisted trailing chars to clean from string 
     bad_chars = [" ", "'", ";", ":", ",", '"']
@@ -138,6 +123,29 @@ def parse_str(string):
         if nu_str[0] not in bad_chars:
             if nu_str[-1] not in bad_chars:
                 break
+    
+    return nu_str
+
+"""
+Iterates through string and sets special chars to chars usable by the program, most of
+these include bash chars because input is passed into youtube-dl through bash using 
+with provided strings from the user. Other cases include extra spaces or quotes at the
+end or begining of the string. This happens when items are put into input via drag and 
+drop. Newlines are also striped usig rstrip.
+
+param string: type string, the string to parse
+return nu_str: type string consisting of the edited string
+"""
+def parse_str(string):
+    nu_str = string
+    
+    # Chars to change for bash interpretation
+    chars = {" ": "\ ",
+            "(": "\(",
+            ")": "\(",
+            "'": "\\'"}
+    
+    nu_str = clean_str(nu_str)
     
     # replace chars for bash to read
     for key in chars:
@@ -314,7 +322,7 @@ class Song(object):
                     break
                
                 # take care of special chars for bash 
-                tmp_str = parse_str(tmp_str)
+                tmp_str = tmp_str
                 if tmp_str or i == 4: # if == 4 then enter statement because return is needed 
                     if i == 0:
                         # Fail safe for song title, see self.song description
@@ -344,7 +352,7 @@ class Song(object):
         opt = get_input("Would you like to Add a custom Album art? y/N: ")
         if opt == "y" or opt == "yes" or opt == "Y":
             while True:
-                self.art_file_path = parse_str(get_input(CLEAR_LINE() + "Enter custom art path here: "))
+                self.art_file_path = clean_str(get_input(CLEAR_LINE() + "Enter custom art path here: "))
 
                 if os.path.isfile(self.art_file_path):
                     if ".jpg" in self.art_file_path:
@@ -403,7 +411,7 @@ class Command(object):
                 break
             
             print(CLEAR_REPLACE(2) + YELLOW("NOTE: Changing the name only changes the file name not the Song title"))
-            song_obj.s_file_path = parse_str(get_input(CLEAR_LINE() + "Enter New file name: "))
+            song_obj.s_file_path = get_input(CLEAR_LINE() + "Enter New file name: ")
            
             # update file status in tag list
             draw_screen()
@@ -412,13 +420,13 @@ class Command(object):
         print(CLEAR_REPLACE(2))
 
         self.run(self.ffmpeg_conv.format(
-                    song_obj.v_file_path,
-                    song_obj.song,
-                    song_obj.artist,
-                    song_obj.alb_artist,
-                    song_obj.album,
-                    song_obj.genre,
-                    song_obj.s_file_path))
+                    parse_str(song_obj.v_file_path),
+                    parse_str(song_obj.song),
+                    parse_str(song_obj.artist),
+                    parse_str(song_obj.alb_artist),
+                    parse_str(song_obj.album),
+                    parse_str(song_obj.genre),
+                    parse_str(song_obj.s_file_path)))
 
     def pull_alb_art(self, file_path, time, art_path):
         self.run(self.ffmpeg_art.format(file_path, time, art_path))
@@ -446,25 +454,25 @@ class Command(object):
         ##########################################################################
         if not song:
             while True:
-                song_file = parse_str(get_input("Enter song file path: "))
+                song_file = get_input("Enter song file path: ")
                 if os.path.isfile(song_file) and ".mp3" in song_file:
                     draw_screen()
                     break
                 draw_screen()
                 print(YELLOW("File not found or invalid type"))
         else:
-            song_file = parse_str(song)
+            song_file = song
 
         if not art:
             while True:
-                art_file = parse_str(get_input("Enter art file path: "))
+                art_file = get_input("Enter art file path: ")
                 if os.path.isfile(art_file) and ".jpg" in art_file:
                     draw_screen()
                     break
                 draw_screen()
                 print(YELLOW("File not found or invalid type"))
         else:
-            art_file= parse_str(art)
+            art_file = art
         
 
         p = open(art_file, 'rb').read()
