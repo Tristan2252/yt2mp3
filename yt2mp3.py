@@ -379,7 +379,7 @@ class Command(object):
     def __init__(self, verbose):
         self.verbose = verbose
 
-        self.update_cmd = "git clone https://github.com/Tristan2252/yt2mp3; yt2mp3/install.sh; sudo rm -r yt2mp3/"
+        self.update_cmd = "sudo git clone https://github.com/Tristan2252/yt2mp3; yt2mp3/install.sh; sudo rm -r yt2mp3/"
         self.youtube_dl_update("sudo youtube-dl -U")
         self.rm_cmd = "rm -r {}" # left blank so that path can be added to it
         self.youtube_dl_cmd = 'youtube-dl --no-playlist -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
