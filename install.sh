@@ -1,23 +1,15 @@
 #!/bin/bash
 
-INSTALL_DIR="/opt/yt2mp3"
+# globals 
 BIN_DIR="/usr/local/bin"
-
+INSTALL_DIR="/opt/yt2mp3"
 YOUTUBE_DL="/usr/local/bin/youtube-dl"
-
-# Mac OS test dir'
-HOMEBREW_MOS="/usr/local/bin/brew"
-PYTHON3_MOS="/usr/local/lib/python3.5"
-FFMPEG_MOS="/usr/local/bin/ffmpeg"
-
-# LINUX test dir's
-FFMPEG_LIN="/usr/bin/ffmpeg"
-PYTHON3_LIN="/usr/bin/python3"
-PIP3_LIN="/usr/bin/pip3"
 
 install ()
 {
     case $1 in
+
+        # Mac OS installs
         $HOMEBREW_MOS)
             printf "\n###### INSTALLING HOMEBREW ######\n\n"
             /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";;
@@ -27,11 +19,14 @@ install ()
         $FFMPEG_MOS)
             printf "\n###### INSTALLING FFMPEG ######\n\n"
             brew install ffmpeg;;
-       
-      
+
+        # Linux  installs
         $PYTHON3_LIN)
             printf "\n###### INSTALLING PYTHON3 ######\n\n"
             sudo apt-get install python3 -y;;
+        $PYTHON2_LIN)
+            printf "\n###### INSTALLING PYTHON3 ######\n\n"
+            sudo apt-get install python -y;;
         $PIP3_LIN)
             printf "\n###### INSTALLING PIP3 ######\n\n"
             sudo apt-get install python3-pip -y;;
@@ -46,6 +41,8 @@ install ()
             sudo apt-get update
             sudo apt-get install ffmpeg -y;;
 
+
+        # General Installs
         $MUTAGEN)
             printf "\n###### INSTALLING MUTAGEN ######\n\n"
             pip3 install mutagen;;
@@ -86,6 +83,10 @@ check_file ()
 
 mac_install ()
 {
+    # Mac OS test dir'
+    HOMEBREW_MOS="/usr/local/bin/brew"
+    PYTHON3_MOS="/usr/local/lib/python3.5"
+    FFMPEG_MOS="/usr/local/bin/ffmpeg"
     MUTAGEN="/usr/local/lib/python3.6/site-packages/mutagen"
 
     check_file $HOMEBREW_MOS
@@ -100,9 +101,15 @@ mac_install ()
 
 linux_install ()
 {
+    # LINUX test dir's
+    FFMPEG_LIN="/usr/bin/ffmpeg"
+    PYTHON3_LIN="/usr/bin/python3"
+    PYTHON2_LIN="/usr/bin/python2.7" # required for youtube-dl
+    PIP3_LIN="/usr/bin/pip3"
     MUTAGEN="/usr/local/lib/python3.5/dist-packages/mutagen"
 
     check_file $PYTHON3_LIN
+    check_file $PYTHON2_LIN
     check_file $PIP3_LIN
     check_file $MUTAGEN
     check_file $FFMPEG_LIN
