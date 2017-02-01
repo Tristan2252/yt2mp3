@@ -106,7 +106,7 @@ linux_install ()
     PYTHON3_LIN="/usr/bin/python3"
     PYTHON2_LIN="/usr/bin/python2.7" # required for youtube-dl
     PIP3_LIN="/usr/bin/pip3"
-    MUTAGEN="/usr/local/lib/python3.5/dist-packages/mutagen"
+    MUTAGEN="/usr/local/lib/python3.5/site-packages/mutagen"
 
     check_file $PYTHON3_LIN
     check_file $PYTHON2_LIN
