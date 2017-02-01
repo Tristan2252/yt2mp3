@@ -45,7 +45,7 @@ install ()
         # General Installs
         $MUTAGEN)
             printf "\n###### INSTALLING MUTAGEN ######\n\n"
-            pip3 install mutagen;;
+            sudo pip3 install mutagen;;
         $YOUTUBE_DL)
             printf "\n###### INSTALLING YOUTUBE ######\n\n"
             sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
