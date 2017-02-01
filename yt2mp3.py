@@ -366,7 +366,7 @@ class Song(object):
 
     def print_tags(self):
         print("\033[37;3mTags List:\033[0m")
-        print("Song Name         : {}\t File Name: {}".format(WHITE(self.song), WHITE(self.s_file_path)))
+        print("Song Name         : {}\t File Name: {}".format(WHITE(self.song), WHITE(parse_str(self.s_file_path))))
         print("Artist Name       : {}".format(WHITE(self.artist)))
         print("Album Name        : {}".format(WHITE(self.album)))
         print("Album Artist Name : {}".format(WHITE(self.alb_artist)))
@@ -380,7 +380,7 @@ class Command(object):
         self.verbose = verbose
 
         self.update_cmd = "git clone https://github.com/Tristan2252/yt2mp3; yt2mp3/install.sh; sudo rm -r yt2mp3/"
-        self.rm_cmd = "sudo rm -r {}" # left blank so that path can be added to it
+        self.rm_cmd = "rm -r {}" # left blank so that path can be added to it
         self.youtube_dl_cmd = 'youtube-dl --no-playlist -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
         """
         -loglevel error: Show all errors, including ones which can be recovered from.
@@ -644,6 +644,9 @@ def main():
     yt2mp3.apply_tags(song)
     # Add album art using alb_add()
     yt2mp3.alb_add(song.art_file_path, song.s_file_path)
+
+    # clean up tmp
+    yt2mp3.run(yt2mp3.rm_cmd.format(flags.download_path + "/*"))
 
     draw_screen()
     print("\033[37;3mProgram Summary:\033[0m")

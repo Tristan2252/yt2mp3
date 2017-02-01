@@ -48,7 +48,7 @@ install ()
 
         $MUTAGEN)
             printf "\n###### INSTALLING MUTAGEN ######\n\n"
-            pip3 install -r requirements.txt;;
+            pip3 install mutagen;;
         $YOUTUBE_DL)
             printf "\n###### INSTALLING YOUTUBE ######\n\n"
             sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
@@ -104,6 +104,7 @@ linux_install ()
 
     check_file $PYTHON3_LIN
     check_file $PIP3_LIN
+    check_file $MUTAGEN
     check_file $FFMPEG_LIN
     check_file $YOUTUBE_DL
 
