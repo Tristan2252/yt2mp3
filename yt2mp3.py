@@ -143,6 +143,7 @@ def parse_str(string):
     chars = {" ": "\ ",
             "(": "\(",
             ")": "\(",
+            "&": "\&",
             "'": "\\'"}
     
     nu_str = clean_str(nu_str)
