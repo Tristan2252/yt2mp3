@@ -67,7 +67,7 @@ check_error ()
 {
     if [ ! -e $1 ]; then
             printf "Unable to install $1, check installation for errors\n\n"
-            exit -1
+            #exit -1
     fi
 }
 
