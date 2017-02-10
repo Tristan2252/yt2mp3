@@ -70,6 +70,8 @@ def usage():
           "[-k]                 keep all temp files\n"\
           "[-h]                 print help screen\n"\
           "[-d] [PATH]          set a custom download path\n"\
+          "\n"
+          "[--alb_add] [JPG PATH] [MP3 PATH]          run alb-add function\n"\
           "\n"\
           "In App Commands:\n"\
           "[\exit]              exit program at any input\n"\
@@ -142,7 +144,7 @@ def parse_str(string):
     # Chars to change for bash interpretation
     chars = {" ": "\ ",
             "(": "\(",
-            ")": "\(",
+            ")": "\)",
             "&": "\&",
             "'": "\\'"}
     
@@ -180,56 +182,71 @@ class Flags(object):
         #                                                                               #
         #################################################################################
         
-        # TODO: commenting
         """
-        Verbose flag to run program in verbose mode if set to True or 1. If set to 0 no debug output
-        is printed to screen. If 1 all bash commands print output to stdout
+        Verbose flag to run program in verbose mode if set to True or 1 then flag is set, If set to 0 no 
+        debug output is printed to screen. When flag is set, commands ran from Command.run are ran without
+        catching input.
         """
         self.verbose = 0
+
         """
         Flag to keep or delete temp folder after program is done running. If set to
-        1 the clean_up function is not run
+        1 the cleanup function is not ran at then end of the program. 
         """
         self.keep_files = 0
-        self.update = 0
-        self.remove_tmp = 0
-        self.usage = 0
+        
         """
-        Time to get frame from video for song album art. If changed must be in format
-        Hr:Min:Sec.000 so the ffmpeg can read it in as a valid argument
+        Update flag, if set puts the program into update mode and then exits from update. If set to 0 
+        the program runs in normal mode, use this flag to update the program only.
+        """
+        self.update = 0
+
+        """
+        Remove temp flag is used to remove temp files form the command line using the '-r' option.
+        Like update after the function is ran the program immediately exits
+        """
+        self.remove_tmp = 0
+
+        """
+        Usage flag, if set the help screen is printed to the user and then exits out. Used as the 
+        '-h' flag from the command line
+        """
+        self.usage = 0
+
+        """
+        Alb_add flag, if set the alb_add fuctionality of the program is ran and exits after done 
+        """
+        self.alb_add = 0
+
+        """
+        To change the folder where yt2mp3 stores temp data such as the downloaded mp4 or
+        output.jpg (album art) as well as any other logs for debuging
         """
         self.download_path = "/tmp/yt2mp3"
+
         """
         Home Music filder var. Can be used to change the destination to move song at the
         end of the program
         """
         self.music_folder = "$HOME/Music"
+        
         """
-        To change the folder where yt2mp3 stores temp data such as the downloaded mp4 or
-        output.jpg (album art) as well as any other logs for debuging
+        Time to get frame from video for the album art. If changed must be in format
+        Hr:Min:Sec.000 so the ffmpeg can read it in as a valid argument
         """
         self.time = '00:00:10.000'
+
+        """
+        Var used to store youtube link
+        """
         self.link = ""
-        self.file_path = ""
-        self.alb_add = None
-
-
-    def print_flag_status(self):
-        print("\nArg List: {}\n".format(self.arg_lst))
-        print("Verbose: {}".format(self.verbose))
-        print("Keep Files: {}".format(self.keep_files))
-        print("Update: {}".format(self.update))
-        print("Remove: {}".format(self.remove_tmp))
-        print("Usage: {}".format(self.usage))
-        print("Download Path: {}".format(self.download_path))
-        print("Music Folder: {}".format(self.music_folder))
-        print("Time: {}".format(self.time))
-        print("FFMPEG flags: {}".format(self.FFMPEG_BIN))
-        print("Download Link: {}".format(self.link))
-
+    
+    """
+    Set flags is a tokenizer that goes through each arg passed into yt2mp3 and determines its 
+    meaning and sets corresponding flag. For details on flags see usage or Flags.__init__.
+    """
     def set_flags(self):
         if '-u' in self.arg_lst:
-            # set verbose to see output of rm and mv command
             self.verbose = 1
             self.update = 1
         if '-v' in self.arg_lst:
@@ -270,10 +287,6 @@ class Song(object):
         self.v_file_path = "",
         self.s_file_path = ""
         self.art_file_path = ""
-        """
-        self.song MUST always be set because it is what yt2mp3 uses to set the file name 
-        of the song
-        """
         self.song = ""
         self.artist = ""
         self.album = ""
@@ -649,7 +662,8 @@ def main():
     yt2mp3.alb_add(song.art_file_path, song.s_file_path)
 
     # clean up tmp
-    yt2mp3.run(yt2mp3.rm_cmd.format(flags.download_path + "/*"))
+    if not flags.keep_files:
+        yt2mp3.run(yt2mp3.rm_cmd.format(flags.download_path + "/*"))
 
     draw_screen()
     print("\033[37;3mProgram Summary:\033[0m")
