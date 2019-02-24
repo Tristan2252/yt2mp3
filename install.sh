@@ -23,7 +23,7 @@ install ()
         # Linux  installs
         $PYTHON3_LIN)
             printf "\n###### INSTALLING PYTHON3 ######\n\n"
-            sudo apt-get install python3 -y;;
+            sudo apt-get install python3.6 -y;;
         $PYTHON2_LIN)
             printf "\n###### INSTALLING PYTHON3 ######\n\n"
             sudo apt-get install python -y;;
@@ -45,7 +45,7 @@ install ()
         # General Installs
         $MUTAGEN)
             printf "\n###### INSTALLING MUTAGEN ######\n\n"
-            sudo pip3 install mutagen;;
+            sudo -H python3.6 -m pip install mutagen;;
         $YOUTUBE_DL)
             printf "\n###### INSTALLING YOUTUBE ######\n\n"
             sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
@@ -103,10 +103,10 @@ linux_install ()
 {
     # LINUX test dir's
     FFMPEG_LIN="/usr/bin/ffmpeg"
-    PYTHON3_LIN="/usr/bin/python3"
+    PYTHON3_LIN="/usr/bin/python3.6"
     PYTHON2_LIN="/usr/bin/python2.7" # required for youtube-dl
     PIP3_LIN="/usr/bin/pip3"
-    MUTAGEN="/usr/local/lib/python3.5/site-packages/mutagen"
+    MUTAGEN="/usr/local/lib/python3.6/dist-packages/mutagen"
 
     check_file $PYTHON3_LIN
     check_file $PYTHON2_LIN

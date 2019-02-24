@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 from mutagen.id3 import APIC
 from mutagen.mp3 import MP3
