@@ -453,8 +453,6 @@ class Command(object):
             self.run(self.mkdir.format(ck_folder), True)
 
     def update(self):
-        # remove anything in install dir
-        self.run(self.rm_cmd.format("/opt/yt2mp3/*"))
         self.run(self.update_cmd)
         self.run(self.youtube_dl_update)
         # exit program after update
