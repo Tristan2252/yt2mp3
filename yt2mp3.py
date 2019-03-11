@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.6
 
-from mutagen.id3 import APIC
-from mutagen.mp3 import MP3
+from __future__ import unicode_literals
+from mutagen.id3 import APIC # add album art
+from mutagen.mp3 import MP3  # add album art
+import youtube_dl
 import subprocess as sp
 import sys, getopt
 import time
@@ -387,6 +389,16 @@ class Song(object):
         print("Genre             : {}".format(WHITE(self.genre)))
         print() # adding some white space
 
+class MyLogger(object):
+    def debug(self, msg):
+        pass
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        print(msg)
+
 
 class Command(object):
     
@@ -397,7 +409,9 @@ class Command(object):
         self.update_cmd = "git --git-dir=/opt/yt2mp3/.git pull"
         self.youtube_dl_update = "sudo youtube-dl -U"
         self.rm_cmd = "rm -r {}" # left blank so that path can be added to it
-        self.youtube_dl_cmd = 'youtube-dl --no-playlist -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
+        #self.youtube_dl_cmd = 'youtube-dl --no-playlist -r 25.5M -f 22/18/43/36/17 -o "{}/DLSONG.%(ext)s" {}'
+        
+
         """
         -loglevel error: Show all errors, including ones which can be recovered from.
         """
@@ -407,15 +421,29 @@ class Command(object):
         """
         vid_path, vid_time, outputh_path
         """
-        self.ffmpeg_art = "ffmpeg -y -loglevel error -nostats -i {} -ss {} -vframes 1 {}"
+        #self.ffmpeg_art = "ffmpeg -y -loglevel error -nostats -i {} -ss {} -vframes 1 {}"
         self.mkdir = "mkdir {}"
         self._albadd = "alb_add {} {}"
         
     def download(self, path, link):
         print(CLEAR_REPLACE(1))
         # ugh, I dont like this its too hard to read and fallow... TODO: A better way?
-        self.youtube_dl_cmd = self.youtube_dl_cmd.format(path, link)
-        self.run(self.youtube_dl_cmd)
+        #self.youtube_dl_cmd = self.youtube_dl_cmd.format(path, link)
+        #self.run(self.youtube_dl_cmd)
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': '/tmp/yt2mp3/DLSONG.%(ext)s',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'logger': MyLogger(),
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([link])
+
+
 
     def apply_tags(self, song_obj):
 
@@ -444,8 +472,8 @@ class Command(object):
                     parse_str(song_obj.genre),
                     parse_str(song_obj.s_file_path)))
 
-    def pull_alb_art(self, file_path, time, art_path):
-        self.run(self.ffmpeg_art.format(file_path, time, art_path))
+#    def pull_alb_art(self, file_path, time, art_path):
+#        self.run(self.ffmpeg_art.format(file_path, time, art_path))
 
     def check_folder(self, ck_folder):
         if not os.path.isdir(ck_folder):
@@ -652,8 +680,8 @@ def main():
 
     # if the art_file_path is set to path+output.jpg, in oter words its the default then
     # fetch the art from the mp4 file using pull_alb_art()
-    if song.art_file_path == flags.download_path + "/output.jpg":
-            yt2mp3.pull_alb_art(song.v_file_path, flags.time, song.art_file_path)
+    #if song.art_file_path == flags.download_path + "/output.jpg":
+    #        yt2mp3.pull_alb_art(song.v_file_path, flags.time, song.art_file_path)
 
     # add all tags and convert to mp3 using ffmpeg
     yt2mp3.apply_tags(song)
