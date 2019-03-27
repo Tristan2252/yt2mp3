@@ -1,10 +1,11 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3
 
 from __future__ import unicode_literals
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import APIC # add album art
 from mutagen.mp3 import MP3  # add album art
 import youtube_dl
+import urllib.request
 import subprocess as sp
 import sys, getopt
 import time
@@ -57,6 +58,13 @@ def usage():
           "[\\back]              use to redo a tag \n"\
           "[\clear]             use to clear a tag \n"\
           "\n")
+
+def update():
+    #https://stackoverflow.com/questions/13166595/how-can-i-pull-a-remote-repository-with-gitpython
+    import git
+    repo = git.Repo('repo_name')
+    o = repo.remotes.origin
+    o.pull()
 
 def leave(status):
     print(CLEAR_SCREEN())
@@ -281,12 +289,23 @@ class Audio(object):
 
     def apply_cover(self):
         
+        if "http" in self.__cover:
+            opener=urllib.request.build_opener()
+            opener.addheaders=[('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
+            urllib.request.install_opener(opener)
+
+            urllib.request.urlretrieve(self.__cover, "cover.jpg")
+            self.__cover = "cover.jpg"
+        
         if self.__cover:
             p = open(self.__cover, 'rb').read()
             audio = MP3(self.__name + ".mp3")
 
             audio['APIC'] = APIC(3, 'image/jpeg', 3, 'Front cover', p)
             audio.save()
+
+        if os.path.exists("cover.jpg"):
+            os.remove("cover.jpg")
 
     def tag_menu(self):
         return CLEAR_LINE() + "\033[37;3mTags List:\033[0m \n" + \
