@@ -118,7 +118,7 @@ class Screen():
         """
         self.__splash=CLEAR_REPLACE("0;0") + "\n" + \
                       CLEAR_LINE() + "\t\t#############################\n" + \
-                      CLEAR_LINE() + "\t\t#### -- " + RED("Yt2mp3 BETA 3") + " -- ####\n" + \
+                      CLEAR_LINE() + "\t\t#### -- " + RED("Yt2mp3 BETA 3.0") + " -- ####\n" + \
                       CLEAR_LINE() + "\t\t#############################\n"
         self.__progress=""
         self.__menu=""
