@@ -81,7 +81,16 @@ def subproc_wait(screen_obj, subproc_fuction, status_string):
         sys.exit(0)
     
     count = 0
-    while os.waitpid(pid, os.WNOHANG) == (0, 0):
+    while True:
+        status = os.waitpid(pid, os.WNOHANG) 
+        
+        if status[1] != 0:
+            print(RED("\nYT2MP3 ERROR: ") + "Occurred in subproc function: " + YELLOW(subproc_fuction.__name__) + "()")
+            input("\nHit Enter to exit")
+            sys.exit(-1)
+        elif status[0] != 0:
+            break
+
         screen_obj.set_progress(status_string, count)
         count += 1
         time.sleep(0.1)
