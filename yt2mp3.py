@@ -372,7 +372,14 @@ if __name__ == "__main__":
         while True:
             main()
     elif '-u' in args:
+        class NotSudo(Exception):
+            pass
+        if os.getuid() != 0:
+            print("You need to run 'sudo yt2mp3 -u' to update")
+            sys.exit(0)
+
         update()
+        sys.exit(0)
     else:
         main()
 
