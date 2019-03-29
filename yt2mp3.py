@@ -60,14 +60,7 @@ def usage():
           "\n")
 
 def update():
-    # https://stackoverflow.com/questions/15315573/how-can-i-call-git-pull-from-within-python
-    import git
-
-    git_dir = "/usr/local/src/yt2mp3"
-    g = git.cmd.Git(git_dir)
-
-    g.pull()
-    
+    sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', 'pull'])
     sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user'])
 
 def leave(status):
@@ -374,12 +367,6 @@ if __name__ == "__main__":
         while True:
             main()
     elif '-u' in args:
-        class NotSudo(Exception):
-            pass
-        if os.getuid() != 0:
-            print("You need to run 'sudo yt2mp3 -u' to update")
-            sys.exit(0)
-
         update()
         sys.exit(0)
     else:
