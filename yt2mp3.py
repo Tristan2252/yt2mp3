@@ -67,6 +67,8 @@ def update():
     g = git.cmd.Git(git_dir)
 
     g.pull()
+    
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user'])
 
 def leave(status):
     print(CLEAR_SCREEN())
