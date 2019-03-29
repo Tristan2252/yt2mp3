@@ -3,13 +3,12 @@
 SRC_DST=/usr/local/src/yt2mp3
 INSTALL_DST=/usr/local/bin/yt2mp3
 
-sudo -v
-
 ###### Remove Old Versions ######
-if [ -e /opt/yt2mp3 ]; then
-    rm -rf /opt/yt2mp3
-elif [ -e /usr/local/bin/yt2mp3 ]; then 
-    rm -rf /opt/yt2mp3
+if [ ! -e /opt/yt2mp3 ]; then
+    sudo rm -rf /opt/yt2mp3
+fi
+if [ ! -e /usr/local/bin/yt2mp3 ]; then 
+    sudo rm /usr/local/bin/yt2mp3
 fi
 
 if [ $(uname -s) == "Darwin" ]; then
@@ -62,8 +61,8 @@ if ! pip3 show git &>/dev/null; then
 fi
 
 if [ ! -e $SRC_DST ]; then 
-    mkdir -p $SRC_DST
-    git clone https://github.com/Tristan2252/yt2mp3 $SRC_DST
+    sudo mkdir -p $SRC_DST
+    sudo cp -r . $SRC_DST
 fi
 
 if [ ! -e $INSTALL_DST ]; then 
