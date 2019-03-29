@@ -68,7 +68,7 @@ def update():
 
     g.pull()
     
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user'])
+    sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user'])
 
 def leave(status):
     print(CLEAR_SCREEN())
@@ -120,7 +120,7 @@ class Screen():
         """
         self.__splash=CLEAR_REPLACE("0;0") + "\n" + \
                       CLEAR_LINE() + "\t\t#############################\n" + \
-                      CLEAR_LINE() + "\t\t#### -- " + RED("Yt2mp3 BETA 3.0") + " -- ####\n" + \
+                      CLEAR_LINE() + "\t\t#   -- " + RED("Yt2mp3 BETA 3.0") + " --   #\n" + \
                       CLEAR_LINE() + "\t\t#############################\n"
         self.__progress=""
         self.__menu=""
