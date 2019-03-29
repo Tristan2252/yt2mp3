@@ -57,7 +57,8 @@ if ! pip3 show mutagen &>/dev/null; then
     pip3 install mutagen
 fi
 if ! pip3 show git &>/dev/null; then 
-    pip3 install GitPython
+    # Needs sudo for updating
+    sudo pip3 install GitPython 
 fi
 
 if [ ! -e $SRC_DST ]; then 
