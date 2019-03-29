@@ -63,7 +63,7 @@ def update():
     # https://stackoverflow.com/questions/15315573/how-can-i-call-git-pull-from-within-python
     import git
 
-    git_dir = "~/.local/src/yt2mp3"
+    git_dir = "/usr/local/src/yt2mp3"
     g = git.cmd.Git(git_dir)
 
     g.pull()
@@ -118,7 +118,7 @@ class Screen():
         """
         self.__splash=CLEAR_REPLACE("0;0") + "\n" + \
                       CLEAR_LINE() + "\t\t#############################\n" + \
-                      CLEAR_LINE() + "\t\t#### -- " + RED("Yt2mp3 BETA 2") + " -- ####\n" + \
+                      CLEAR_LINE() + "\t\t#### -- " + RED("Yt2mp3 BETA 3") + " -- ####\n" + \
                       CLEAR_LINE() + "\t\t#############################\n"
         self.__progress=""
         self.__menu=""
