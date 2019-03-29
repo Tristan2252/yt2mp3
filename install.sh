@@ -11,18 +11,18 @@ if [ ! -e /usr/local/bin/yt2mp3 ]; then
     sudo rm /usr/local/bin/yt2mp3
 fi
 
-if [ $(uname -s) == "Darwin" ]; then
+if [ $(uname -s) = "Darwin" ]; then
     DISTRO="mac"
     PKG_MGR=brew
-elif [ -e /etc/lsb_release ]; then 
+elif [ ! -e /etc/lsb_release ]; then 
     DISTRO="ubuntu"
     PKG_MGR=apt
-elif [ -e /etc/fedora-release ]; then 
-    echo "OS: fedora"
+elif [ ! -e /etc/fedora-release ]; then 
     DISTRO="fedora"
     PKG_MGR=yum
 fi
 
+echo "OS: $DISTRO"
 
 ###### PACKAGE INSTALLS ######
 if ! which python3 &>/dev/null; then 
@@ -55,10 +55,6 @@ if ! pip3 show youtube-dl &>/dev/null; then
 fi
 if ! pip3 show mutagen &>/dev/null; then 
     pip3 install mutagen
-fi
-if ! pip3 show git &>/dev/null; then 
-    # Needs sudo for updating
-    sudo pip3 install GitPython 
 fi
 
 if [ ! -e $SRC_DST ]; then 
