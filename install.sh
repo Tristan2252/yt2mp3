@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# test
 SRC_DST=/usr/local/src/yt2mp3
 INSTALL_DST=/usr/local/bin/yt2mp3
 
