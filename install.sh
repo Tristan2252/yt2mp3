@@ -4,32 +4,36 @@ SRC_DST=/usr/local/src/yt2mp3
 INSTALL_DST=/usr/local/bin/yt2mp3
 
 ###### Remove Old Versions ######
-if [ ! -e /opt/yt2mp3 ]; then
+if [ -e /opt/yt2mp3 ]; then
     sudo rm -rf /opt/yt2mp3
 fi
-if [ ! -e /usr/local/bin/yt2mp3 ]; then 
+if [ -e /usr/local/bin/yt2mp3 ]; then 
     sudo rm /usr/local/bin/yt2mp3
 fi
 
 if [ $(uname -s) = "Darwin" ]; then
     DISTRO="mac"
-    PKG_MGR=brew
+    PKG_MGR="brew install"
+    if [ ! -e /usr/local/bin/brew ]; then
+        printf "You need Homebrew to install via this script\nGo to https://brew.sh/ to install\n"
+	exit 0
+    fi
 elif [ ! -e /etc/lsb_release ]; then 
     DISTRO="ubuntu"
-    PKG_MGR=apt
+    PKG_MGR="sudo apt install -y"
 elif [ ! -e /etc/fedora-release ]; then 
     DISTRO="fedora"
-    PKG_MGR=yum
+    PKG_MGR="sudo yum install -y"
 fi
 
 echo "OS: $DISTRO"
 
 ###### PACKAGE INSTALLS ######
 if ! which python3 &>/dev/null; then 
-    sudo $PKG_MGR install python3 -y
+    $PKG_MGR  python3
 fi
 if ! which pip3 &>/dev/null; then 
-    sudo $PKG_MGR install python3-pip -y
+    $PKG_MGR install python3-pip
 fi
 if ! which ffmpeg &>/dev/null; then 
 
@@ -45,7 +49,7 @@ if ! which ffmpeg &>/dev/null; then
         https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
     fi 
 
-    sudo $PKG_MGR install ffmpeg -y
+    $PKG_MGR ffmpeg
 fi
 
 
