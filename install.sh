@@ -26,10 +26,10 @@ echo "OS: $DISTRO"
 
 ###### PACKAGE INSTALLS ######
 if ! which python3 &>/dev/null; then 
-    sudo $PKG_MGR install python3
+    sudo $PKG_MGR install python3 -y
 fi
 if ! which pip3 &>/dev/null; then 
-    sudo $PKG_MGR install python3-pip
+    sudo $PKG_MGR install python3-pip -y
 fi
 if ! which ffmpeg &>/dev/null; then 
 
@@ -42,10 +42,10 @@ if ! which ffmpeg &>/dev/null; then
     if [ $DISTRO = "fedora" ]; then
         sudo yum install \
         https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-        https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+        https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
     fi 
 
-    sudo $PKG_MGR install ffmpeg
+    sudo $PKG_MGR install ffmpeg -y
 fi
 
 
