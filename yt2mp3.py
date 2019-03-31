@@ -389,17 +389,18 @@ def main():
     screen = Screen()
     
     args = sys.argv[1:]
-    if '-u' in args:
+    if '--update' or '-u' in args:
         update()
         sys.exit(0)
 
     screen.draw()
     link = get_link(screen)
     
-    if '-l' in args:
+    if '--loop' in args:
         while True:
             yt2mp3(screen, link)
-            get_link()
+            time.sleep(1)
+            get_link(screen)
 
     elif '--playlist' in args:
         
