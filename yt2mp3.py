@@ -387,13 +387,13 @@ def yt2mp3(screen, link):
 
 def main():
     screen = Screen()
+    screen.draw()
     
     args = sys.argv[1:]
     if '--update' or '-u' in args:
         update()
         sys.exit(0)
 
-    screen.draw()
     link = get_link(screen)
     
     if '--loop' in args:
