@@ -63,10 +63,9 @@ fi
 
 if [ ! -e $SRC_DST ]; then 
     sudo mkdir -p $SRC_DST
-    sudo cp -r . $SRC_DST
 fi
 
-if [ ! -e $INSTALL_DST ]; then 
-    sudo ln -s $SRC_DST/yt2mp3.py $INSTALL_DST
-fi
+
+sudo cp -r . $SRC_DST
+sudo ln -s $SRC_DST/yt2mp3.py $INSTALL_DST
 

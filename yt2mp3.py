@@ -60,7 +60,7 @@ def usage():
           "\n")
 
 def update():
-    sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', 'pull', '--force'])
+    sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', '--work-tree=/usr/local/src/yt2mp3/', 'pull', '--force'])
     sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user'])
 
 def leave(status):
