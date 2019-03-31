@@ -390,7 +390,7 @@ def main():
     screen.draw()
     
     args = sys.argv[1:]
-    if '--update' or '-u' in args:
+    if '--update' in args:
         update()
         sys.exit(0)
 
