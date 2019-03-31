@@ -92,6 +92,35 @@ def subproc_wait(screen_obj, subproc_fuction, status_string):
         count += 1
         time.sleep(0.1)
 
+def get_link(screen):
+    link = ""
+    print("For help enter: \help")
+    while link == "":
+        link = screen.prompt(CLEAR_REPLACE("7;0") + "Enter Video Link: ")
+
+    return link
+
+def get_playlist(playlist):
+
+    ydl_opts = {
+        'logger': MyLogger(),
+    }
+    p_list = []
+
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        playlist_dict = ydl.extract_info(playlist, download=False)
+
+        for video in playlist_dict['entries']:
+
+            if not video:
+                print('ERROR: Unable to get info. Continuing...')
+                continue
+
+            for property in ['webpage_url']:
+                p_list.append(video.get(property))
+
+    return p_list
+
 class MyLogger(object):
     def debug(self, msg):
         pass
@@ -321,14 +350,10 @@ class Audio(object):
         CLEAR_LINE() + "Album Artist Name : {}\n".format(WHITE(self.__alb_artist)) + \
         CLEAR_LINE() + "Genre             : {}\n".format(WHITE(self.__genre))
 
-def main():
+def yt2mp3(screen, link):
     audio = Audio()
-    screen = Screen()
     screen.draw()
-   
-    print("For help enter: \help")
-    while audio.get_yt_link() == "":
-        audio.set_yt_link(screen.prompt(CLEAR_REPLACE("7;0") + "Enter Video Link: "))
+    audio.set_yt_link(link)
 
     screen.set_progress("Link Set: " + audio.get_yt_link())
     screen.set_menu(audio.tag_menu())
@@ -360,15 +385,35 @@ def main():
     screen.set_progress(GREEN("\033[1mComplete!"))
 
 
-if __name__ == "__main__":
+def main():
+    screen = Screen()
     
     args = sys.argv[1:]
-    if '-l' in args:
-        while True:
-            main()
-    elif '-u' in args:
+    if '-u' in args:
         update()
         sys.exit(0)
+
+    screen.draw()
+    link = get_link(screen)
+    
+    if '-l' in args:
+        while True:
+            yt2mp3(screen, link)
+            get_link()
+
+    elif '--playlist' in args:
+        
+        screen.set_progress(YELLOW("Fetching Playlist... Please Wait..."))
+        playlist = get_playlist(link)
+        
+        for i in playlist:
+            yt2mp3(screen, i)
+            time.sleep(1)
+
     else:
-        main()
+        yt2mp3(screen, link)
+
+
+if __name__ == "__main__":
+    main()
 
