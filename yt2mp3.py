@@ -350,7 +350,7 @@ class Audio(object):
         CLEAR_LINE() + "Album Artist Name : {}\n".format(WHITE(self.__alb_artist)) + \
         CLEAR_LINE() + "Genre             : {}\n".format(WHITE(self.__genre))
 
-def yt2mp3(screen, link):
+def yt2mp3(screen, link, flags=[]):
     audio = Audio()
     screen.draw()
     audio.set_yt_link(link)
@@ -400,7 +400,7 @@ def main():
         while True:
             yt2mp3(screen, link)
             time.sleep(1)
-            get_link(screen)
+            link = get_link(screen)
 
     elif '--playlist' in args:
         
