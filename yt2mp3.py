@@ -188,10 +188,10 @@ class Screen():
                 elif '\sub' in reply:
                     # TODO: add ability to subtract words from answer
                     index = index
-                elif reply:
-                    function[index](reply)
-                    index += 1
+                #elif reply:
+                    #index += 1
                 else:
+                    function[index](reply)
                     index += 1
 
                 self.set_menu(menu_get_method())
@@ -230,10 +230,12 @@ class Audio(object):
 
 
     def set_name(self, name): 
-        self.__name = name
+        if name:
+            self.__name = name
 
     def set_artist(self, artist): 
-        self.__artist = artist
+        if artist:
+            self.__artist = artist
 
     def set_album(self, album): 
         if album == "":
