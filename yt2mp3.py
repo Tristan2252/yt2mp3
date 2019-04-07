@@ -61,7 +61,7 @@ def usage():
 
 def update():
     sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', '--work-tree=/usr/local/src/yt2mp3/', 'pull', '--force'])
-    sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user'])
+    sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user', '--no-warn-script-location'])
 
 def leave(status):
     print(CLEAR_SCREEN())
@@ -236,9 +236,17 @@ class Audio(object):
         self.__artist = artist
 
     def set_album(self, album): 
+        if album == "":
+            self.__album = self.__name
+            return
+
         self.__album = album
 
     def set_alb_artist(self, album_artist): 
+        if album_artist == "":
+            self.__alb_artist = self.__artist
+            return
+        
         self.__alb_artist = album_artist
 
     def set_genre(self, genre): 
@@ -400,6 +408,7 @@ def main():
         while True:
             yt2mp3(screen, link)
             time.sleep(1)
+            screen.draw()
             link = get_link(screen)
 
     elif '--playlist' in args:
