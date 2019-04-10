@@ -33,7 +33,7 @@ if ! which python3 &>/dev/null; then
     $PKG_MGR  python3
 fi
 if ! which pip3 &>/dev/null; then 
-    $PKG_MGR install python3-pip
+    $PKG_MGR python3-pip
 fi
 if ! which ffmpeg &>/dev/null; then 
 
