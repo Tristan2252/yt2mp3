@@ -54,11 +54,11 @@ fi
 
 
 ###### PIP INSTALLS ######
-if ! pip3 show youtube-dl &>/dev/null; then 
-    pip3 install youtube-dl
+if ! python3 -m pip show youtube-dl &>/dev/null; then 
+    python3 -m pip install youtube-dl
 fi
-if ! pip3 show mutagen &>/dev/null; then 
-    pip3 install mutagen
+if ! python3 -m pip show mutagen &>/dev/null; then 
+    python3 -m pip install mutagen
 fi
 
 if [ ! -e $SRC_DST ]; then 
