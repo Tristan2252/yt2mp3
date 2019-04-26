@@ -59,6 +59,25 @@ def usage():
           "[\clear]             use to clear a tag \n"\
           "\n")
 
+def usage_cli():
+    print("\n\n"\
+          "Command Line Flags:\n"\
+          "--playlist           Download all videos from Youtube\n"\
+          "                     playlist link instead of just the\n"\
+          "                     current video.\n"\
+          "-l --loop            Loop through yt2mp3 until user enters\n"\
+          "                     \exit command. Useful when you want to\n"\
+          "                     download a lot of videos\n"\
+          "-u --update          Run update for yt2mp3 and youtube-dl\n"\
+          "                     library\n\n"\
+          "In App Commands:\n"\
+          "[\exit]              exit program at any input\n"\
+          "[\help]              print out usage in app\n"\
+          "[\\back]              use to redo a tag \n"\
+          "[\clear]             use to clear a tag \n"\
+          "\n")
+
+
 def update():
     sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', '--work-tree=/usr/local/src/yt2mp3/', 'pull', '--force'])
     sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user', '--no-warn-script-location'])
@@ -400,13 +419,17 @@ def main():
     screen.draw()
     
     args = sys.argv[1:]
-    if '--update' in args:
+    if ('--help' in args) or ('-h' in args):
+        usage_cli()
+        sys.exit(0)
+
+    elif ('--update' in args) or ('-u' in args):
         update()
         sys.exit(0)
 
     link = get_link(screen)
     
-    if '--loop' in args:
+    if ('--loop' in args) or ('-l' in args):
         while True:
             yt2mp3(screen, link)
             time.sleep(1)
