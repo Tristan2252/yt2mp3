@@ -2,15 +2,16 @@
 
 from __future__ import unicode_literals
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import APIC # add album art
-from mutagen.mp3 import MP3  # add album art
-import youtube_dl
-import urllib.request
+from mutagen.id3 import APIC            # add album art
+from mutagen.mp3 import MP3             # add album art
+from git import Repo
+import youtube_dl                       # video and metadata downloader
+import urllib.request                   # web scraper for album url
 import subprocess as sp
-import sys, getopt
+import click                            # better command line arg parser
 import time
+import sys
 import os
-
 
 """
 #########################################################################################
@@ -51,12 +52,12 @@ CLEAR_SCREEN = lambda: "\033[2J"
 #################################################################################
 
 def usage():
-    print("\n\n"\
+    print("\n\n" + CLEAR_LINE() +\
           "In App Commands:\n"\
-          "[\exit]              exit program at any input\n"\
-          "[\help]              print out usage in app\n"\
-          "[\\back]              use to redo a tag \n"\
-          "[\clear]             use to clear a tag \n"\
+          "\exit              exit program at any input\n"\
+          "\help              print out usage in app\n"\
+          "\\back              use to redo a tag \n"\
+          "\clear             use to clear a tag \n"\
           "\n")
 
 def usage_cli():
@@ -78,9 +79,22 @@ def usage_cli():
           "\n")
 
 
-def update():
-    sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', '--work-tree=/usr/local/src/yt2mp3/', 'pull', '--force'])
+def updater():
+    repo = Repo("/usr/local/src/yt2mp3/")
+    if os.geteuid() != 0:
+        os.execvp("sudo", ["sudo"] + sys.argv) 
+    print(GREEN("[ OK ] ") + "Sudo access")
+    # check that the repository loaded correctly
+    if not repo.bare:
+        print(GREEN("[ OK ] ") + "Loaded Repo")
+        orig = repo.remotes.origin
+        orig.pull()
+    else:
+        print(RED("[ FAIL ] ") + "Loaded Repo")
+
+    #sp.check_call(['sudo', 'git', '--git-dir=/usr/local/src/yt2mp3/.git', '--work-tree=/usr/local/src/yt2mp3/', 'pull', '--force'])
     sp.check_call([sys.executable, '-m', 'pip', 'install', 'youtube-dl', '--upgrade', '--user', '--no-warn-script-location'])
+    #sys.exit(0)
 
 def leave(status):
     print(CLEAR_SCREEN())
@@ -414,40 +428,39 @@ def yt2mp3(screen, link, flags=[]):
     screen.set_progress(GREEN("\033[1mComplete!"))
 
 
-def main():
+@click.command()
+@click.option("-l", "--loop", is_flag=True, help="Loop yt2mp3 until exit command")
+@click.option("-u", "--update", is_flag=True, help="Update yt2mp3 and youtube-dl to newest version")
+@click.option("-p", "--playlist", is_flag=True, help="Download playlist instead of just one video")
+@click.argument("link", required=False)
+def main(update, loop, playlist, link=None):
     screen = Screen()
     screen.draw()
     
-    args = sys.argv[1:]
-    if ('--help' in args) or ('-h' in args):
-        usage_cli()
+    if update:
+        updater()
         sys.exit(0)
 
-    elif ('--update' in args) or ('-u' in args):
-        update()
-        sys.exit(0)
-
-    link = get_link(screen)
-    
-    if ('--loop' in args) or ('-l' in args):
+    if not link:
+        link = get_link(screen)
+   
+    if loop:
         while True:
             yt2mp3(screen, link)
             time.sleep(1)
             screen.draw()
             link = get_link(screen)
 
-    elif '--playlist' in args:
-        
+    elif playlist:
         screen.set_progress(YELLOW("Fetching Playlist... Please Wait..."))
-        playlist = get_playlist(link)
+        list = get_playlist(link)
         
-        for i in playlist:
+        for i in list:
             yt2mp3(screen, i)
             time.sleep(1)
 
     else:
         yt2mp3(screen, link)
-
 
 if __name__ == "__main__":
     main()

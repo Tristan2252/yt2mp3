@@ -60,6 +60,9 @@ fi
 if ! python3 -m pip show mutagen &>/dev/null; then 
     python3 -m pip install mutagen
 fi
+if ! python3 -m pip show click &>/dev/null; then 
+    python3 -m pip install click
+fi
 
 if [ ! -e $SRC_DST ]; then 
     sudo mkdir -p $SRC_DST
